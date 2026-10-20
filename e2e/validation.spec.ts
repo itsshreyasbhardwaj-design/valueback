@@ -20,7 +20,9 @@ test.describe('validation and refusals', () => {
   test('an empty file is refused', async ({ page }) => {
     await registerAndSkip(page, 'empty');
     await page.goto('/app/documents');
-    await page.locator('#file').setInputFiles({ name: 'nothing.txt', mimeType: 'text/plain', buffer: Buffer.from('') });
+    await page
+      .locator('#file')
+      .setInputFiles({ name: 'nothing.txt', mimeType: 'text/plain', buffer: Buffer.from('') });
     await page.getByRole('button', { name: /Upload and read/i }).click();
     await expect(page.getByText(/Choose a file to upload|empty/i).first()).toBeVisible();
   });
@@ -110,8 +112,18 @@ test.describe('validation and refusals', () => {
 
   test('a duplicate benefit is suggested, never merged', async ({ page }) => {
     await registerAndSkip(page, 'dupbenefit');
-    await addBenefit(page, { title: 'Twice entered', merchant: 'Lifestyle', value: '400', expiresAt: isoInDays(30) });
-    await addBenefit(page, { title: 'Twice entered', merchant: 'Lifestyle', value: '400', expiresAt: isoInDays(30) });
+    await addBenefit(page, {
+      title: 'Twice entered',
+      merchant: 'Lifestyle',
+      value: '400',
+      expiresAt: isoInDays(30),
+    });
+    await addBenefit(page, {
+      title: 'Twice entered',
+      merchant: 'Lifestyle',
+      value: '400',
+      expiresAt: isoInDays(30),
+    });
 
     await expect(page.getByText(/Possible duplicates/i)).toBeVisible();
     await expect(page.getByText(/Likely the same/i)).toBeVisible();
@@ -144,7 +156,9 @@ test.describe('validation and refusals', () => {
     await page.goto(`/app/documents/${documentId}`);
     await expect(page.getByText(/That page does not exist/i)).toBeVisible();
 
-    const file = await page.request.get(`/api/documents/${documentId}/file`, { failOnStatusCode: false });
+    const file = await page.request.get(`/api/documents/${documentId}/file`, {
+      failOnStatusCode: false,
+    });
     expect(file.status()).toBe(404);
     expect(await file.text()).not.toContain('private receipt');
   });
@@ -167,7 +181,9 @@ test.describe('validation and refusals', () => {
     expect(await mine.text()).toContain('my own receipt');
 
     // A context with no cookies cannot.
-    const anonymous = await request.get(`/api/documents/${documentId}/file`, { failOnStatusCode: false });
+    const anonymous = await request.get(`/api/documents/${documentId}/file`, {
+      failOnStatusCode: false,
+    });
     expect(anonymous.status()).toBe(401);
   });
 
@@ -178,7 +194,9 @@ test.describe('validation and refusals', () => {
     await expect(page).toHaveURL(/\/signin/);
   });
 
-  test('a signed-in user gets a clean 404 for a record id that does not exist', async ({ page }) => {
+  test('a signed-in user gets a clean 404 for a record id that does not exist', async ({
+    page,
+  }) => {
     await registerAndSkip(page, 'missing');
     await page.goto('/app/benefits/b_definitely_not_real');
     await expect(page.getByText(/That page does not exist/i)).toBeVisible();

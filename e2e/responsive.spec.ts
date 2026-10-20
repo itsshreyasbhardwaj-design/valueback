@@ -5,9 +5,20 @@ import { addBenefit, isoInDays, registerAndSkip } from './helpers';
 test.describe('small screens', () => {
   test('the app is usable and does not scroll sideways', async ({ page }) => {
     await registerAndSkip(page, 'mobile');
-    await addBenefit(page, { title: 'Mobile credit', merchant: 'Lifestyle', value: '1250', expiresAt: isoInDays(20) });
+    await addBenefit(page, {
+      title: 'Mobile credit',
+      merchant: 'Lifestyle',
+      value: '1250',
+      expiresAt: isoInDays(20),
+    });
 
-    for (const path of ['/app', '/app/benefits', '/app/refunds', '/app/analytics', '/app/settings']) {
+    for (const path of [
+      '/app',
+      '/app/benefits',
+      '/app/refunds',
+      '/app/analytics',
+      '/app/settings',
+    ]) {
       await page.goto(path);
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -51,7 +62,9 @@ test.describe('small screens', () => {
     );
     expect(overflow).toBeLessThanOrEqual(1);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Start tracking for free/i }).first()).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: /Start tracking for free/i }).first(),
+    ).toBeVisible();
   });
 
   test('a form is filled and submitted with touch-sized controls', async ({ page }) => {

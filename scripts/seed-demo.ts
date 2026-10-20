@@ -36,7 +36,16 @@ function makeUser(email: string, name: string, password: string) {
     tx.insert(users)
       .values({ id, email, name, passwordHash: hashPassword(password) })
       .run();
-    tx.insert(userSettings).values({ userId: id, currency: 'INR', timeZone: 'Asia/Kolkata' }).run();
+    tx.insert(userSettings)
+      .values({
+        userId: id,
+        currency: 'INR',
+        timeZone: 'Asia/Kolkata',
+        // The demo exists to show a populated product, not the wizard.
+        onboardingStep: 5,
+        onboardingCompletedAt: new Date().toISOString(),
+      })
+      .run();
     tx.insert(entitlements).values({ userId: id, plan: 'free' }).run();
   });
   return { id, created: true };

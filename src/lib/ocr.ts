@@ -11,7 +11,9 @@ import { readEnv } from './env';
  * `npm run fetch:ocr`. Until then image OCR reports itself as unavailable and
  * the upload falls back to manual entry — it never pretends to have read text.
  */
-export const OCR_DATA_DIR = resolve(readEnv('OCR_DATA_DIR') ?? './ocr-data');
+export const OCR_DATA_DIR = resolve(
+  /* turbopackIgnore: true */ readEnv('OCR_DATA_DIR') ?? './ocr-data',
+);
 const LANG = 'eng';
 
 export function ocrAvailable(): boolean {

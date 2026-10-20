@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
-import { addBenefit, isoInDays, register, registerAndSkip, signIn, signOut, uniqueEmail } from './helpers';
+import {
+  addBenefit,
+  isoInDays,
+  register,
+  registerAndSkip,
+  signIn,
+  signOut,
+  uniqueEmail,
+} from './helpers';
 
 test.describe('the main journey', () => {
   test('1-2: a new user registers and completes onboarding', async ({ page }) => {
@@ -8,14 +16,20 @@ test.describe('the main journey', () => {
     await expect(page.getByRole('heading', { name: /Welcome to ValueBack/i })).toBeVisible();
     await page.getByRole('button', { name: /Let.s go/i }).click();
 
-    await expect(page.getByRole('heading', { name: /Small amounts, scattered everywhere/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Small amounts, scattered everywhere/i }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Next' }).click();
 
-    await expect(page.getByRole('heading', { name: /What would you like to track/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /What would you like to track/i }),
+    ).toBeVisible();
     await page.getByLabel('Gift card').check();
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    await expect(page.getByRole('heading', { name: /Add the one you nearly forgot/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Add the one you nearly forgot/i }),
+    ).toBeVisible();
     await page.locator('#title').fill('Onboarding gift card');
     await page.locator('#originalValue').fill('1500');
     await page.locator('#expiresAt').fill(isoInDays(45));
@@ -39,7 +53,9 @@ test.describe('the main journey', () => {
     expect(email).toContain('@');
   });
 
-  test('3-6: adding a gift card, recording partial usage and seeing the balance fall', async ({ page }) => {
+  test('3-6: adding a gift card, recording partial usage and seeing the balance fall', async ({
+    page,
+  }) => {
     await registerAndSkip(page, 'balance');
     await addBenefit(page, {
       title: 'Bluebird Books gift card',
@@ -75,9 +91,15 @@ test.describe('the main journey', () => {
 
     // 12: analytics separates outstanding from recovered — ₹1,900 + ₹600, not ₹2,500 + ₹1,900.
     await page.goto('/app/analytics');
-    const available = page.locator('a,div').filter({ hasText: /^Available, as reported/ }).first();
+    const available = page
+      .locator('a,div')
+      .filter({ hasText: /^Available, as reported/ })
+      .first();
     await expect(available).toContainText('₹1,900.00');
-    const recovered = page.locator('a,div').filter({ hasText: /^Confirmed recovered/ }).first();
+    const recovered = page
+      .locator('a,div')
+      .filter({ hasText: /^Confirmed recovered/ })
+      .first();
     await expect(recovered).toContainText('₹600.00');
   });
 
@@ -118,7 +140,9 @@ test.describe('the main journey', () => {
 
     // 8: review, correct the title, and accept.
     await page.getByRole('link', { name: 'Create a benefit' }).click();
-    await expect(page.getByRole('heading', { name: /Check these values, then save/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Check these values, then save/i }),
+    ).toBeVisible();
     const title = page.locator('#title');
     await expect(title).toHaveValue(/URBAN GREENS CAFE|e-Gift Card/);
     await title.fill('Urban Greens gift card');
@@ -168,7 +192,10 @@ test.describe('the main journey', () => {
 
     // Still nothing counted as recovered.
     await page.goto('/app/analytics');
-    const recoveredBefore = page.locator('a,div').filter({ hasText: /^Confirmed recovered/ }).first();
+    const recoveredBefore = page
+      .locator('a,div')
+      .filter({ hasText: /^Confirmed recovered/ })
+      .first();
     await expect(recoveredBefore).toContainText('₹0.00');
 
     // 11: confirm receipt.
@@ -180,9 +207,24 @@ test.describe('the main journey', () => {
 
     // 12: it moves from pending to recovered, and is not counted in both.
     await page.goto('/app/analytics');
-    await expect(page.locator('a,div').filter({ hasText: /^Pending refunds/ }).first()).toContainText('₹0.00');
-    await expect(page.locator('a,div').filter({ hasText: /^Confirmed recovered/ }).first()).toContainText('₹3,799.00');
-    await expect(page.locator('a,div').filter({ hasText: /^Refunds confirmed received/ }).first()).toContainText('₹3,799.00');
+    await expect(
+      page
+        .locator('a,div')
+        .filter({ hasText: /^Pending refunds/ })
+        .first(),
+    ).toContainText('₹0.00');
+    await expect(
+      page
+        .locator('a,div')
+        .filter({ hasText: /^Confirmed recovered/ })
+        .first(),
+    ).toContainText('₹3,799.00');
+    await expect(
+      page
+        .locator('a,div')
+        .filter({ hasText: /^Refunds confirmed received/ })
+        .first(),
+    ).toContainText('₹3,799.00');
   });
 
   test('13-14: a reminder is created and shows up when it is due', async ({ page }) => {
@@ -215,12 +257,20 @@ test.describe('the main journey', () => {
 
   test('19: the user exports their data', async ({ page }) => {
     await registerAndSkip(page, 'export');
-    await addBenefit(page, { title: 'Exportable credit', merchant: 'Lifestyle', value: '750', code: 'EX-1111-2222' });
+    await addBenefit(page, {
+      title: 'Exportable credit',
+      merchant: 'Lifestyle',
+      value: '750',
+      code: 'EX-1111-2222',
+    });
 
     await page.goto('/app/settings/data');
 
     const csv = page.waitForEvent('download');
-    await page.getByRole('button', { name: /Download CSV/i }).first().click();
+    await page
+      .getByRole('button', { name: /Download CSV/i })
+      .first()
+      .click();
     const csvFile = await csv;
     expect(csvFile.suggestedFilename()).toMatch(/valueback-benefits-\d{4}-\d{2}-\d{2}\.csv/);
 

@@ -6,13 +6,22 @@ import { useEffect } from 'react';
  * Last-resort boundary. It never shows the raw message, because an error from a
  * data path could contain record details.
  */
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   useEffect(() => {
     console.error('[valueback] unhandled error', error.digest ?? error.message);
   }, [error]);
 
   return (
-    <main id="main" className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 text-center">
+    <main
+      id="main"
+      className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center px-6 text-center"
+    >
       <h1 className="text-2xl font-semibold">Something went wrong</h1>
       <p className="mt-3 text-[var(--text-muted)]">
         The page could not be shown. Nothing you had already saved is affected — records are only

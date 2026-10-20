@@ -32,7 +32,7 @@ export type Document = typeof documents.$inferSelect;
 export type Extraction = typeof extractions.$inferSelect;
 
 export function storageDir(): string {
-  return resolve(readEnv('STORAGE_DIR') ?? './storage');
+  return resolve(/* turbopackIgnore: true */ readEnv('STORAGE_DIR') ?? './storage');
 }
 
 type Sniffed = { kind: 'image' | 'pdf' | 'text' | 'eml'; mime: string; ext: string };
@@ -152,7 +152,7 @@ export function documentAbsolutePath(doc: Pick<Document, 'storagePath'>): string
 }
 
 export async function readDocumentBytes(doc: Pick<Document, 'storagePath'>): Promise<Buffer> {
-  return readFile(documentAbsolutePath(doc));
+  return readFile(/* turbopackIgnore: true */ documentAbsolutePath(doc));
 }
 
 /* ------------------------------------------------------ text extraction */

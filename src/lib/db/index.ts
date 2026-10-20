@@ -5,7 +5,11 @@ import { dirname, resolve } from 'node:path';
 import * as schema from './schema';
 import { readEnv } from '../env';
 
-export const DB_PATH = resolve(readEnv('DATABASE_URL') ?? './data/valueback.db');
+// turbopackIgnore keeps the bundler from tracing the whole project because
+// this path is only known at runtime — which is the point (see lib/env.ts).
+export const DB_PATH = resolve(
+  /* turbopackIgnore: true */ readEnv('DATABASE_URL') ?? './data/valueback.db',
+);
 
 function connect() {
   mkdirSync(dirname(DB_PATH), { recursive: true });
