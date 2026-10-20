@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BarChart3, Bell, FileText, Home, Plus, RotateCcw, Search, Settings, Users, Wallet, X, Menu,
+  BarChart3, Bell, FileText, Home, LogOut, Plus, RotateCcw, Search, Settings, Users, Wallet, X, Menu,
 } from 'lucide-react';
+import { signOutAction } from '@/app/(auth)/actions';
 import { useEffect, useState } from 'react';
 import { Logo } from './brand';
 import { ThemeToggle } from './theme-toggle';
@@ -68,7 +69,17 @@ export function Sidebar({ unread, userName, plan }: { unread: number; userName: 
         <div className="mb-2 truncate px-1 text-xs text-[var(--text-faint)]">
           {userName} · {plan} plan
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              className="inline-flex min-h-[2.25rem] items-center gap-1.5 rounded-lg border border-[var(--border-strong)] px-2.5 py-1.5 text-[0.8125rem] text-[var(--text-muted)] hover:bg-[var(--bg-subtle)]"
+            >
+              <LogOut size={14} aria-hidden /> Sign out
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
   );
@@ -141,6 +152,14 @@ export function MobileTopBar({ unread }: { unread: number }) {
               </Link>
             );
           })}
+          <form action={signOutAction} className="col-span-2">
+            <button
+              type="submit"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-[var(--text-muted)]"
+            >
+              <LogOut size={16} aria-hidden /> Sign out
+            </button>
+          </form>
         </nav>
       ) : null}
     </>
