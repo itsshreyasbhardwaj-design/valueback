@@ -43,7 +43,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       'Cache-Control': 'private, no-store, max-age=0',
       'X-Content-Type-Options': 'nosniff',
       // Nothing in a user-supplied file should be able to execute or phone home.
-      'Content-Security-Policy': "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
+      'Content-Security-Policy':
+        "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox",
     },
   });
 }

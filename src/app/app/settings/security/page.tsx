@@ -6,7 +6,12 @@ import { db } from '@/lib/db';
 import { recoveryCodes } from '@/lib/db/schema';
 import { timestamp } from '@/lib/format';
 import { Alert, Card, CardHeader } from '@/components/ui';
-import { DeleteAccountPanel, PasswordForm, RecoveryCodesPanel, RevokeSessionsPanel } from '../panels';
+import {
+  DeleteAccountPanel,
+  PasswordForm,
+  RecoveryCodesPanel,
+  RevokeSessionsPanel,
+} from '../panels';
 
 export const metadata: Metadata = { title: 'Security' };
 
@@ -37,17 +42,26 @@ export default async function SecurityPage({
         ) : null}
 
         <Card>
-          <CardHeader title="Change your password" description="Changing it signs out every other device." />
+          <CardHeader
+            title="Change your password"
+            description="Changing it signs out every other device."
+          />
           <PasswordForm />
         </Card>
 
         <Card>
-          <CardHeader title="Recovery codes" description="The only way back in if you forget your password." />
+          <CardHeader
+            title="Recovery codes"
+            description="The only way back in if you forget your password."
+          />
           <RecoveryCodesPanel existing={unusedCodes} />
         </Card>
 
         <Card>
-          <CardHeader title="Active sessions" description="Sessions are stored server-side; only a hash of each cookie is kept." />
+          <CardHeader
+            title="Active sessions"
+            description="Sessions are stored server-side; only a hash of each cookie is kept."
+          />
           <ul className="divide-y divide-[var(--border)] text-sm">
             {sessions.map((s) => (
               <li key={s.id} className="px-4 py-2.5">
@@ -64,7 +78,10 @@ export default async function SecurityPage({
         </Card>
 
         <Card>
-          <CardHeader title="Delete your account" description="Permanent, immediate, and not recoverable." />
+          <CardHeader
+            title="Delete your account"
+            description="Permanent, immediate, and not recoverable."
+          />
           <DeleteAccountPanel />
         </Card>
       </div>
@@ -72,14 +89,23 @@ export default async function SecurityPage({
       <div className="space-y-5">
         <Card className="p-4">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <ShieldCheck size={15} className="text-[var(--accent)]" aria-hidden /> What protects this account
+            <ShieldCheck size={15} className="text-[var(--accent)]" aria-hidden /> What protects
+            this account
           </h2>
           <ul className="mt-2 space-y-1.5 text-[0.8125rem] text-[var(--text-muted)]">
-            <li>• Passwords hashed with scrypt (memory-hard), never stored or logged in plain text.</li>
-            <li>• Sessions held server-side; the cookie is HTTP-only and only its hash is in the database.</li>
+            <li>
+              • Passwords hashed with scrypt (memory-hard), never stored or logged in plain text.
+            </li>
+            <li>
+              • Sessions held server-side; the cookie is HTTP-only and only its hash is in the
+              database.
+            </li>
             <li>• Sign-in, password change and recovery attempts are rate limited.</li>
             <li>• Every record read and write re-checks ownership on the server.</li>
-            <li>• Gift-card codes are encrypted with AES-256-GCM using a key from your local environment file.</li>
+            <li>
+              • Gift-card codes are encrypted with AES-256-GCM using a key from your local
+              environment file.
+            </li>
           </ul>
         </Card>
 
@@ -94,7 +120,8 @@ export default async function SecurityPage({
 
         <Alert tone="neutral" title="If you lose your key">
           Redemption codes are encrypted with APP_ENCRYPTION_KEY from your local environment file.
-          Replacing that key makes previously saved codes unreadable — everything else keeps working.
+          Replacing that key makes previously saved codes unreadable — everything else keeps
+          working.
         </Alert>
       </div>
     </div>

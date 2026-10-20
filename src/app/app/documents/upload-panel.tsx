@@ -57,8 +57,8 @@ export function UploadPanel({
         <UploadCloud size={15} aria-hidden /> Upload and read
       </SubmitButton>
       <p className="text-xs text-[var(--text-faint)]">
-        Reading happens on this machine. Nothing is sent to another service, and nothing is saved to a
-        record until you confirm it.
+        Reading happens on this machine. Nothing is sent to another service, and nothing is saved to
+        a record until you confirm it.
       </p>
     </form>
   );

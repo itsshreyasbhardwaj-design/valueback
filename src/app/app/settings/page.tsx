@@ -44,8 +44,8 @@ export default async function SettingsPage() {
               Rebuild all expiry reminders
             </SubmitButton>
             <p className="mt-2 text-xs text-[var(--text-faint)]">
-              Scheduled reminders are replaced. Ones you already snoozed, completed or cancelled are left
-              alone.
+              Scheduled reminders are replaced. Ones you already snoozed, completed or cancelled are
+              left alone.
             </p>
           </form>
         </Card>
@@ -54,16 +54,16 @@ export default async function SettingsPage() {
           <h2 className="text-sm font-semibold">About currencies</h2>
           <p className="mt-2 text-[0.8125rem] leading-relaxed text-[var(--text-muted)]">
             Your preferred currency is used for new records and headline figures. Records in other
-            currencies are kept and shown separately — ValueBack has no exchange-rate source, so it will
-            not add them together.
+            currencies are kept and shown separately — ValueBack has no exchange-rate source, so it
+            will not add them together.
           </p>
         </Card>
 
         <Card className="p-4">
           <h2 className="text-sm font-semibold">About the time zone</h2>
           <p className="mt-2 text-[0.8125rem] leading-relaxed text-[var(--text-muted)]">
-            Deadlines are calendar dates, not timestamps. The time zone decides when “today” rolls over,
-            which is what makes “expires in 1 day” correct for you.
+            Deadlines are calendar dates, not timestamps. The time zone decides when “today” rolls
+            over, which is what makes “expires in 1 day” correct for you.
           </p>
         </Card>
       </div>

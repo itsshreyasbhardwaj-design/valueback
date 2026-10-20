@@ -39,7 +39,8 @@ export default async function HouseholdPage({
 
   const mine = householdsOf(user.id);
   const shared = sharedWithMe(user.id);
-  const canCreate = mine.filter((m) => m.role === 'owner').length < PLAN_LIMITS[user.plan].households;
+  const canCreate =
+    mine.filter((m) => m.role === 'owner').length < PLAN_LIMITS[user.plan].households;
 
   return (
     <>
@@ -49,9 +50,9 @@ export default async function HouseholdPage({
       />
 
       <Alert tone="neutral" title="How sharing works here" className="mb-5">
-        Membership grants no visibility at all. Each benefit or refund case has its own “Sharing” panel,
-        and only the owner of a record can share it or stop sharing it. A viewer can never edit, whatever
-        a share says.
+        Membership grants no visibility at all. Each benefit or refund case has its own “Sharing”
+        panel, and only the owner of a record can share it or stop sharing it. A viewer can never
+        edit, whatever a share says.
       </Alert>
 
       {invitePrefill ? (
@@ -85,7 +86,10 @@ export default async function HouseholdPage({
 
                 <ul className="divide-y divide-[var(--border)]">
                   {members.map((m) => (
-                    <li key={m.userId} className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-5">
+                    <li
+                      key={m.userId}
+                      className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-5"
+                    >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
                           {m.name || m.email}
@@ -96,7 +100,17 @@ export default async function HouseholdPage({
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        <Badge tone={m.role === 'owner' ? 'positive' : m.role === 'viewer' ? 'neutral' : 'info'}>{m.role}</Badge>
+                        <Badge
+                          tone={
+                            m.role === 'owner'
+                              ? 'positive'
+                              : m.role === 'viewer'
+                                ? 'neutral'
+                                : 'info'
+                          }
+                        >
+                          {m.role}
+                        </Badge>
                         {role === 'owner' && m.userId !== user.id ? (
                           <RemoveMemberButton householdId={household.id} memberUserId={m.userId} />
                         ) : null}
@@ -115,7 +129,10 @@ export default async function HouseholdPage({
                         <p className="text-sm font-semibold">Open invitations</p>
                         <ul className="mt-2 space-y-1.5">
                           {invites.map((i) => (
-                            <li key={i.id} className="flex items-center justify-between gap-2 text-sm">
+                            <li
+                              key={i.id}
+                              className="flex items-center justify-between gap-2 text-sm"
+                            >
                               <span className="text-[var(--text-muted)]">
                                 {i.role} · expires {timestamp(i.expiresAt, prefs)}
                               </span>
@@ -124,8 +141,8 @@ export default async function HouseholdPage({
                           ))}
                         </ul>
                         <p className="mt-2 text-xs text-[var(--text-faint)]">
-                          The code itself is not stored and cannot be shown again. Revoke and create a new
-                          one if it was lost.
+                          The code itself is not stored and cannot be shown again. Revoke and create
+                          a new one if it was lost.
                         </p>
                       </div>
                     ) : null}
@@ -187,8 +204,8 @@ export default async function HouseholdPage({
             <Card className="p-4">
               <p className="text-sm font-semibold">Household limit reached</p>
               <p className="mt-1.5 text-[0.8125rem] text-[var(--text-muted)]">
-                Your plan includes {PLAN_LIMITS[user.plan].households}. Leave or delete one to create
-                another.{' '}
+                Your plan includes {PLAN_LIMITS[user.plan].households}. Leave or delete one to
+                create another.{' '}
                 <Link href="/pricing" className="underline">
                   See plans
                 </Link>
@@ -197,7 +214,10 @@ export default async function HouseholdPage({
           )}
 
           <Card>
-            <CardHeader title="Join with a code" description="Someone sends you the code; you paste it here." />
+            <CardHeader
+              title="Join with a code"
+              description="Someone sends you the code; you paste it here."
+            />
             <AcceptInvitePanel prefill={invitePrefill} />
           </Card>
 
@@ -210,7 +230,10 @@ export default async function HouseholdPage({
               </div>
               <div>
                 <dt className="font-medium text-[var(--text)]">Member</dt>
-                <dd>Can act on records shared with edit permission — recording a usage, moving a refund on.</dd>
+                <dd>
+                  Can act on records shared with edit permission — recording a usage, moving a
+                  refund on.
+                </dd>
               </div>
               <div>
                 <dt className="font-medium text-[var(--text)]">Viewer</dt>
@@ -222,8 +245,8 @@ export default async function HouseholdPage({
           <Card className="p-4">
             <h2 className="text-sm font-semibold">Sharing is not transfer</h2>
             <p className="mt-2 text-[0.8125rem] leading-relaxed text-[var(--text-muted)]">
-              Letting someone see a gift card record does not make the card theirs to use. Many providers
-              say cards are non-transferable; check their terms before relying on it.
+              Letting someone see a gift card record does not make the card theirs to use. Many
+              providers say cards are non-transferable; check their terms before relying on it.
             </p>
           </Card>
         </div>

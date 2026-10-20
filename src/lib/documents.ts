@@ -15,8 +15,17 @@ import { audit } from './audit';
 export const UPLOAD_MAX_BYTES = 8 * 1024 * 1024; // 8 MB
 export const UPLOAD_MAX_LABEL = '8 MB';
 
-export const ACCEPTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.txt', '.eml'] as const;
-export const ACCEPT_ATTRIBUTE = '.jpg,.jpeg,.png,.webp,.pdf,.txt,.eml,image/jpeg,image/png,image/webp,application/pdf,text/plain,message/rfc822';
+export const ACCEPTED_EXTENSIONS = [
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.pdf',
+  '.txt',
+  '.eml',
+] as const;
+export const ACCEPT_ATTRIBUTE =
+  '.jpg,.jpeg,.png,.webp,.pdf,.txt,.eml,image/jpeg,image/png,image/webp,application/pdf,text/plain,message/rfc822';
 
 export type Document = typeof documents.$inferSelect;
 export type Extraction = typeof extractions.$inferSelect;
@@ -34,7 +43,10 @@ type Sniffed = { kind: 'image' | 'pdf' | 'text' | 'eml'; mime: string; ext: stri
 export function sniffType(buf: Buffer, filename: string): Sniffed | { error: string } {
   const ext = (/\.[a-z0-9]+$/i.exec(filename)?.[0] ?? '').toLowerCase();
 
-  if (buf.length >= 8 && buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+  if (
+    buf.length >= 8 &&
+    buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  ) {
     return { kind: 'image', mime: 'image/png', ext: '.png' };
   }
   if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
@@ -70,8 +82,7 @@ export function sniffType(buf: Buffer, filename: string): Sniffed | { error: str
 }
 
 export type StoreResult =
-  | { ok: true; document: Document; duplicateOfId: string | null }
-  | { ok: false; error: string };
+  { ok: true; document: Document; duplicateOfId: string | null } | { ok: false; error: string };
 
 export async function storeDocument(
   userId: string,
@@ -80,7 +91,10 @@ export async function storeDocument(
 ): Promise<StoreResult> {
   if (file.size === 0) return { ok: false, error: 'That file is empty.' };
   if (file.size > UPLOAD_MAX_BYTES) {
-    return { ok: false, error: `Files must be ${UPLOAD_MAX_LABEL} or smaller. This one is ${(file.size / 1e6).toFixed(1)} MB.` };
+    return {
+      ok: false,
+      error: `Files must be ${UPLOAD_MAX_LABEL} or smaller. This one is ${(file.size / 1e6).toFixed(1)} MB.`,
+    };
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
@@ -118,7 +132,10 @@ export async function storeDocument(
     })
     .run();
 
-  audit(userId, 'document.upload', 'document', id, { mime: sniffed.mime, sizeBytes: buf.length > 0 ? 1 : 0 });
+  audit(userId, 'document.upload', 'document', id, {
+    mime: sniffed.mime,
+    sizeBytes: buf.length > 0 ? 1 : 0,
+  });
   return {
     ok: true,
     document: db.select().from(documents).where(eq(documents.id, id)).get()!,
@@ -153,7 +170,10 @@ export async function extractTextFromPdf(data: Buffer): Promise<TextResult> {
     const task = pdfjs.getDocument({
       data: new Uint8Array(data),
       useSystemFonts: false,
-      standardFontDataUrl: resolve(process.cwd(), 'node_modules/pdfjs-dist/standard_fonts/'),
+      // pdf.js concatenates this with a filename, so the trailing separator
+      // is load-bearing: without it every standard-font lookup fails and the
+      // whole document read throws.
+      standardFontDataUrl: `${resolve(process.cwd(), 'node_modules/pdfjs-dist/standard_fonts')}/`,
     });
     const doc = await task.promise;
     const pages: string[] = [];
@@ -178,8 +198,19 @@ export async function extractTextFromPdf(data: Buffer): Promise<TextResult> {
           status: 'empty',
           note: 'This PDF has no selectable text — it is probably a scan. Save it as an image and upload that to use text recognition, or enter the details by hand.',
         };
-  } catch {
-    return { text: '', engine: 'pdfjs', status: 'failed', note: 'This PDF could not be read. It may be damaged or password protected.' };
+  } catch (err) {
+    // The reason is useful to whoever runs the server; the document's contents
+    // are never logged.
+    console.warn(
+      '[valueback] PDF read failed:',
+      err instanceof Error ? err.message : 'unknown error',
+    );
+    return {
+      text: '',
+      engine: 'pdfjs',
+      status: 'failed',
+      note: 'This PDF could not be read. It may be damaged or password protected.',
+    };
   }
 }
 
@@ -217,7 +248,9 @@ export async function extractTextFor(doc: Document, bytes: Buffer): Promise<Text
       text,
       engine: 'ocr',
       status: text ? 'ok' : 'empty',
-      note: text ? 'Read with on-device text recognition — check the values carefully.' : 'No text could be read from this image.',
+      note: text
+        ? 'Read with on-device text recognition — check the values carefully.'
+        : 'No text could be read from this image.',
     };
   }
 
@@ -232,7 +265,12 @@ export async function extractTextFor(doc: Document, bytes: Buffer): Promise<Text
 export async function processDocument(
   doc: Document,
   defaultCurrency: string,
-): Promise<{ document: Document; extraction: Extraction | null; result: ExtractionResult | null; note?: string }> {
+): Promise<{
+  document: Document;
+  extraction: Extraction | null;
+  result: ExtractionResult | null;
+  note?: string;
+}> {
   const bytes = await readDocumentBytes(doc);
   const textResult = await extractTextFor(doc, bytes);
 
@@ -317,7 +355,10 @@ export function documentsFor(opts: { benefitId?: string; refundCaseId?: string }
   return db.select().from(documents).where(where).orderBy(desc(documents.createdAt)).all();
 }
 
-export function linkDocument(documentId: string, link: { benefitId?: string | null; refundCaseId?: string | null }) {
+export function linkDocument(
+  documentId: string,
+  link: { benefitId?: string | null; refundCaseId?: string | null },
+) {
   db.update(documents).set(link).where(eq(documents.id, documentId)).run();
 }
 
@@ -328,7 +369,9 @@ export function deleteDocument(userId: string, doc: Document): void {
   } catch {
     // the row still goes; a stale file is worse than an orphaned one
   }
-  db.delete(documents).where(and(eq(documents.id, doc.id), eq(documents.userId, userId))).run();
+  db.delete(documents)
+    .where(and(eq(documents.id, doc.id), eq(documents.userId, userId)))
+    .run();
   audit(userId, 'document.delete', 'document', doc.id, {});
 }
 

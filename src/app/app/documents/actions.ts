@@ -20,13 +20,16 @@ export async function uploadDocumentAction(_prev: FormState, fd: FormData): Prom
   const user = await requireUserForAction();
 
   const limit = rateLimit(`upload:${user.id}`, LIMITS.upload.limit, LIMITS.upload.windowMs);
-  if (!limit.ok) return { ok: false, errors: { _form: 'That is a lot of uploads at once. Try again shortly.' } };
+  if (!limit.ok)
+    return { ok: false, errors: { _form: 'That is a lot of uploads at once. Try again shortly.' } };
 
   const monthly = PLAN_LIMITS[user.plan].documentsPerMonth;
   if (documentsThisMonth(user.id) >= monthly) {
     return {
       ok: false,
-      errors: { _form: `Your plan allows ${monthly} uploads a month. The count resets at the start of next month.` },
+      errors: {
+        _form: `Your plan allows ${monthly} uploads a month. The count resets at the start of next month.`,
+      },
     };
   }
 
@@ -55,7 +58,9 @@ export async function uploadDocumentAction(_prev: FormState, fd: FormData): Prom
   revalidatePath('/app/documents');
   if (benefitId) revalidatePath(`/app/benefits/${benefitId}`);
   if (refundCaseId) revalidatePath(`/app/refunds/${refundCaseId}`);
-  redirect(`/app/documents/${stored.document.id}${stored.duplicateOfId ? `?duplicate=${stored.duplicateOfId}` : '?uploaded=1'}`);
+  redirect(
+    `/app/documents/${stored.document.id}${stored.duplicateOfId ? `?duplicate=${stored.duplicateOfId}` : '?uploaded=1'}`,
+  );
 }
 
 export async function reprocessDocumentAction(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -67,10 +72,13 @@ export async function reprocessDocumentAction(_prev: FormState, fd: FormData): P
     revalidatePath(`/app/documents/${id}`);
     return {
       ok: true,
-      message: result.result ? 'Read again and the suggestions were refreshed.' : (result.note ?? 'No text could be read from this file.'),
+      message: result.result
+        ? 'Read again and the suggestions were refreshed.'
+        : (result.note ?? 'No text could be read from this file.'),
     };
   } catch (err) {
-    if (err instanceof NotFoundError) return { ok: false, errors: { _form: 'Document not found.' } };
+    if (err instanceof NotFoundError)
+      return { ok: false, errors: { _form: 'Document not found.' } };
     throw err;
   }
 }
@@ -80,10 +88,12 @@ export async function deleteDocumentAction(_prev: FormState, fd: FormData): Prom
   const id = String(fd.get('id') ?? '');
   try {
     const doc = getDocumentFor(user.id, id);
-    if (doc.userId !== user.id) return { ok: false, errors: { _form: 'Only the person who uploaded a file can delete it.' } };
+    if (doc.userId !== user.id)
+      return { ok: false, errors: { _form: 'Only the person who uploaded a file can delete it.' } };
     deleteDocument(user.id, doc);
   } catch (err) {
-    if (err instanceof NotFoundError) return { ok: false, errors: { _form: 'Document not found.' } };
+    if (err instanceof NotFoundError)
+      return { ok: false, errors: { _form: 'Document not found.' } };
     throw err;
   }
   revalidatePath('/app/documents');

@@ -18,7 +18,10 @@ export const PLAN_LIMITS = {
   free: { activeBenefits: 25, documentsPerMonth: 20, households: 1, label: 'Free' },
   plus: { activeBenefits: 500, documentsPerMonth: 300, households: 1, label: 'ValueBack Plus' },
   family: { activeBenefits: 500, documentsPerMonth: 300, households: 3, label: 'ValueBack Family' },
-} as const satisfies Record<Plan, { activeBenefits: number; documentsPerMonth: number; households: number; label: string }>;
+} as const satisfies Record<
+  Plan,
+  { activeBenefits: number; documentsPerMonth: number; households: number; label: string }
+>;
 
 /** Dev-only plan switching, so the entitlement system is testable without payments. */
 export function devOverrideEnabled(): boolean {

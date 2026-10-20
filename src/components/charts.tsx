@@ -13,7 +13,12 @@ export function BarList({
   emptyLabel = 'Nothing to show yet.',
   max: maxOverride,
 }: {
-  items: Array<{ label: string; value: number; note?: string; tone?: 'accent' | 'warn' | 'neutral' }>;
+  items: Array<{
+    label: string;
+    value: number;
+    note?: string;
+    tone?: 'accent' | 'warn' | 'neutral';
+  }>;
   currency: string;
   emptyLabel?: string;
   max?: number;
@@ -42,7 +47,9 @@ export function BarList({
               }}
             />
           </div>
-          {item.note ? <p className="mt-0.5 text-xs text-[var(--text-faint)]">{item.note}</p> : null}
+          {item.note ? (
+            <p className="mt-0.5 text-xs text-[var(--text-faint)]">{item.note}</p>
+          ) : null}
         </li>
       ))}
     </ul>
@@ -69,10 +76,15 @@ export function CountBarList({
           <span className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--bg-subtle)]">
             <span
               className="block h-full rounded-full"
-              style={{ width: `${Math.max(3, (item.value / max) * 100)}%`, background: colour[item.tone ?? 'accent'] }}
+              style={{
+                width: `${Math.max(3, (item.value / max) * 100)}%`,
+                background: colour[item.tone ?? 'accent'],
+              }}
             />
           </span>
-          <span className="nums w-8 shrink-0 text-right text-[0.8125rem] text-[var(--text-muted)]">{item.value}</span>
+          <span className="nums w-8 shrink-0 text-right text-[0.8125rem] text-[var(--text-muted)]">
+            {item.value}
+          </span>
         </li>
       ))}
     </ul>
@@ -105,10 +117,12 @@ export function MonthlyColumns({
         viewBox={`0 0 ${width} ${height}`}
         className="h-44 w-full"
         role="img"
-        aria-label={`Confirmed recovery by month in ${currency}. ${data
-          .filter((d) => d.refunds + d.credits > 0)
-          .map((d) => `${d.month}: ${formatMoney(d.refunds + d.credits, currency)}`)
-          .join('; ') || 'No recovery recorded yet.'}`}
+        aria-label={`Confirmed recovery by month in ${currency}. ${
+          data
+            .filter((d) => d.refunds + d.credits > 0)
+            .map((d) => `${d.month}: ${formatMoney(d.refunds + d.credits, currency)}`)
+            .join('; ') || 'No recovery recorded yet.'
+        }`}
       >
         <line
           x1={padX}
@@ -153,17 +167,25 @@ export function MonthlyColumns({
           );
         })}
         {empty ? (
-          <text x={width / 2} y={height / 2} textAnchor="middle" fontSize="13" fill="var(--text-faint)">
+          <text
+            x={width / 2}
+            y={height / 2}
+            textAnchor="middle"
+            fontSize="13"
+            fill="var(--text-faint)"
+          >
             Nothing confirmed as recovered yet
           </text>
         ) : null}
       </svg>
       <figcaption className="mt-1 flex flex-wrap items-center gap-4 text-xs text-[var(--text-muted)]">
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[var(--accent)]" aria-hidden /> Refunds confirmed
+          <span className="h-2.5 w-2.5 rounded-sm bg-[var(--accent)]" aria-hidden /> Refunds
+          confirmed
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-[var(--accent)] opacity-45" aria-hidden /> Credit recorded as used
+          <span className="h-2.5 w-2.5 rounded-sm bg-[var(--accent)] opacity-45" aria-hidden />{' '}
+          Credit recorded as used
         </span>
         <span className="ml-auto">Month shown as MM</span>
       </figcaption>

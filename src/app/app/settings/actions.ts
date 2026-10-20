@@ -44,7 +44,9 @@ export async function updateSettingsAction(_prev: FormState, fd: FormData): Prom
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   const d = parsed.data;
 
-  const offsets = parseOffsets(JSON.stringify(d.reminderOffsets.split(',').map((x) => Number(x.trim()))));
+  const offsets = parseOffsets(
+    JSON.stringify(d.reminderOffsets.split(',').map((x) => Number(x.trim()))),
+  );
 
   db.transaction((tx) => {
     tx.update(users).set({ name: d.name, updatedAt: nowIso() }).where(eq(users.id, user.id)).run();
@@ -72,13 +74,22 @@ export async function updateSettingsAction(_prev: FormState, fd: FormData): Prom
 
   audit(user.id, 'settings.update', 'user', user.id, { currency: d.currency, theme: d.theme });
   revalidatePath('/app', 'layout');
-  return { ok: true, message: 'Settings saved. New reminder offsets apply to records you save from now on — use “Rebuild reminders” to apply them to everything.' };
+  return {
+    ok: true,
+    message:
+      'Settings saved. New reminder offsets apply to records you save from now on — use “Rebuild reminders” to apply them to everything.',
+  };
 }
 
 export async function changePasswordAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
-  const limit = rateLimit(`pwd:${user.id}`, LIMITS.passwordChange.limit, LIMITS.passwordChange.windowMs);
-  if (!limit.ok) return { ok: false, errors: { _form: 'Too many attempts. Try again in a few minutes.' } };
+  const limit = rateLimit(
+    `pwd:${user.id}`,
+    LIMITS.passwordChange.limit,
+    LIMITS.passwordChange.windowMs,
+  );
+  if (!limit.ok)
+    return { ok: false, errors: { _form: 'Too many attempts. Try again in a few minutes.' } };
 
   const parsed = passwordChangeSchema.safeParse(formObject(fd));
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
@@ -92,10 +103,17 @@ export async function changePasswordAction(_prev: FormState, fd: FormData): Prom
   return { ok: true, message: 'Password changed. Any other signed-in device has been signed out.' };
 }
 
-export async function generateRecoveryCodesAction(_prev: FormState, fd: FormData): Promise<FormState> {
+export async function generateRecoveryCodesAction(
+  _prev: FormState,
+  fd: FormData,
+): Promise<FormState> {
   const user = await requireUserForAction();
   const password = String(fd.get('password') ?? '');
-  const row = db.select({ hash: users.passwordHash }).from(users).where(eq(users.id, user.id)).get();
+  const row = db
+    .select({ hash: users.passwordHash })
+    .from(users)
+    .where(eq(users.id, user.id))
+    .get();
   if (!row || !verifyPassword(password, row.hash)) {
     return { ok: false, errors: { password: 'That password is not correct.' } };
   }
@@ -105,7 +123,11 @@ export async function generateRecoveryCodesAction(_prev: FormState, fd: FormData
     tx.delete(recoveryCodes).where(eq(recoveryCodes.userId, user.id)).run();
     for (const code of codes) {
       tx.insert(recoveryCodes)
-        .values({ id: newId('rc_'), userId: user.id, codeHash: hashPassword(normaliseRecoveryCode(code)) })
+        .values({
+          id: newId('rc_'),
+          userId: user.id,
+          codeHash: hashPassword(normaliseRecoveryCode(code)),
+        })
         .run();
     }
   });
@@ -118,7 +140,10 @@ export async function generateRecoveryCodesAction(_prev: FormState, fd: FormData
   };
 }
 
-export async function revokeOtherSessionsAction(_prev: FormState, _fd: FormData): Promise<FormState> {
+export async function revokeOtherSessionsAction(
+  _prev: FormState,
+  _fd: FormData,
+): Promise<FormState> {
   const user = await requireUserForAction();
   revokeSessions(user.id, (await currentSessionId()) ?? undefined);
   audit(user.id, 'auth.sessions.revoke', 'user', user.id, {});
@@ -129,10 +154,18 @@ export async function revokeOtherSessionsAction(_prev: FormState, _fd: FormData)
 export async function deleteAccountAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
   const password = String(fd.get('password') ?? '');
-  if (String(fd.get('confirm') ?? '').trim().toLowerCase() !== 'delete my account') {
+  if (
+    String(fd.get('confirm') ?? '')
+      .trim()
+      .toLowerCase() !== 'delete my account'
+  ) {
     return { ok: false, errors: { confirm: 'Type "delete my account" exactly.' } };
   }
-  const row = db.select({ hash: users.passwordHash }).from(users).where(eq(users.id, user.id)).get();
+  const row = db
+    .select({ hash: users.passwordHash })
+    .from(users)
+    .where(eq(users.id, user.id))
+    .get();
   if (!row || !verifyPassword(password, row.hash)) {
     return { ok: false, errors: { password: 'That password is not correct.' } };
   }
@@ -152,14 +185,20 @@ export async function deleteAccountAction(_prev: FormState, fd: FormData): Promi
 export async function setPlanAction(_prev: FormState, fd: FormData): Promise<FormState> {
   await requireUserForAction();
   if (!devOverrideEnabled()) {
-    return { ok: false, errors: { _form: 'Plan switching is only available in a development build.' } };
+    return {
+      ok: false,
+      errors: { _form: 'Plan switching is only available in a development build.' },
+    };
   }
   const user = await requireUserForAction();
   const parsed = planSchema.safeParse(formObject(fd));
   if (!parsed.success) return { ok: false, errors: fieldErrors(parsed.error) };
   setPlan(user.id, parsed.data.plan);
   revalidatePath('/app', 'layout');
-  return { ok: true, message: `Development override: plan set to ${parsed.data.plan}. No payment was involved.` };
+  return {
+    ok: true,
+    message: `Development override: plan set to ${parsed.data.plan}. No payment was involved.`,
+  };
 }
 
 export async function importBenefitsAction(_prev: FormState, fd: FormData): Promise<FormState> {

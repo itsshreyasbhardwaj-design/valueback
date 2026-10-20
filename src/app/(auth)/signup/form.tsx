@@ -18,11 +18,29 @@ export function SignUpForm() {
 
       <form action={action} className="mt-5 space-y-4" noValidate>
         <FormMessage state={state} />
-        <Field label="Your name" name="name" hint="Used to sign the follow-up messages you send." error={state.errors?.name}>
+        <Field
+          label="Your name"
+          name="name"
+          hint="Used to sign the follow-up messages you send."
+          error={state.errors?.name}
+        >
           <Input id="name" name="name" autoComplete="name" maxLength={80} />
         </Field>
-        <Field label="Email address" name="email" required hint="Used as your sign-in name. No mail is ever sent to it." error={state.errors?.email}>
-          <Input id="email" name="email" type="email" autoComplete="email" required aria-invalid={Boolean(state.errors?.email)} />
+        <Field
+          label="Email address"
+          name="email"
+          required
+          hint="Used as your sign-in name. No mail is ever sent to it."
+          error={state.errors?.email}
+        >
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            aria-invalid={Boolean(state.errors?.email)}
+          />
         </Field>
         <Field
           label="Password"
@@ -43,8 +61,8 @@ export function SignUpForm() {
         </Field>
 
         <Alert tone="warning" title="There is no password-reset email">
-          No email provider is connected, so nobody can send you a reset link. Straight after signing up,
-          generate recovery codes in Settings and keep them somewhere safe.
+          No email provider is connected, so nobody can send you a reset link. Straight after
+          signing up, generate recovery codes in Settings and keep them somewhere safe.
         </Alert>
 
         <SubmitButton className="w-full" pendingLabel="Creating your account…">

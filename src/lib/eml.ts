@@ -20,17 +20,22 @@ function decodeQuotedPrintable(s: string): string {
 
 /** =?utf-8?B?...?= / =?utf-8?Q?...?= encoded-words in headers. */
 function decodeHeaderWords(s: string): string {
-  return s.replace(/=\?([^?]+)\?([BbQq])\?([^?]*)\?=/g, (_, charset: string, enc: string, data: string) => {
-    try {
-      const buf =
-        enc.toUpperCase() === 'B'
-          ? Buffer.from(data, 'base64')
-          : Buffer.from(decodeQuotedPrintable(data.replace(/_/g, ' ')), 'latin1');
-      return buf.toString((charset.toLowerCase() === 'utf-8' ? 'utf8' : 'latin1') as BufferEncoding);
-    } catch {
-      return data;
-    }
-  });
+  return s.replace(
+    /=\?([^?]+)\?([BbQq])\?([^?]*)\?=/g,
+    (_, charset: string, enc: string, data: string) => {
+      try {
+        const buf =
+          enc.toUpperCase() === 'B'
+            ? Buffer.from(data, 'base64')
+            : Buffer.from(decodeQuotedPrintable(data.replace(/_/g, ' ')), 'latin1');
+        return buf.toString(
+          (charset.toLowerCase() === 'utf-8' ? 'utf8' : 'latin1') as BufferEncoding,
+        );
+      } catch {
+        return data;
+      }
+    },
+  );
 }
 
 function stripHtml(html: string): string {
@@ -82,7 +87,9 @@ function extractText(body: string, headers: Map<string, string>, depth = 0): str
   const boundary = /boundary="?([^";\r\n]+)"?/i.exec(contentType)?.[1];
 
   if (boundary && depth < 4) {
-    const parts = body.split(new RegExp(`--${boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:--)?`));
+    const parts = body.split(
+      new RegExp(`--${boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:--)?`),
+    );
     const decoded: Array<{ type: string; text: string }> = [];
     for (const part of parts.slice(1)) {
       const trimmed = part.replace(/^\r?\n/, '');
@@ -98,7 +105,10 @@ function extractText(body: string, headers: Map<string, string>, depth = 0): str
     if (plain?.text.trim()) return plain.text;
     const html = decoded.find((d) => d.type.includes('text/html'));
     if (html?.text.trim()) return stripHtml(html.text);
-    return decoded.map((d) => d.text).join('\n').trim();
+    return decoded
+      .map((d) => d.text)
+      .join('\n')
+      .trim();
   }
 
   const decoded = decodeBody(body, headers);
@@ -109,7 +119,10 @@ export function parseEml(raw: string): ParsedEmail {
   const { headers, body } = splitHeaders(raw);
   const fromRaw = headers.get('from') ?? '';
   const addr = /<([^>]+)>/.exec(fromRaw)?.[1] ?? (fromRaw.includes('@') ? fromRaw.trim() : '');
-  const name = fromRaw.replace(/<[^>]*>/, '').replace(/["']/g, '').trim();
+  const name = fromRaw
+    .replace(/<[^>]*>/, '')
+    .replace(/["']/g, '')
+    .trim();
   const dateHeader = headers.get('date');
   let date: string | null = null;
   if (dateHeader) {
@@ -128,5 +141,7 @@ export function parseEml(raw: string): ParsedEmail {
 
 export function looksLikeEml(raw: string): boolean {
   const head = raw.slice(0, 2000);
-  return /^(from|to|subject|date|received|message-id|mime-version|content-type|return-path|delivered-to|x-[a-z-]+):/im.test(head);
+  return /^(from|to|subject|date|received|message-id|mime-version|content-type|return-path|delivered-to|x-[a-z-]+):/im.test(
+    head,
+  );
 }

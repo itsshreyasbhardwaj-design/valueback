@@ -71,11 +71,23 @@ export function BenefitForm({
             hint="Something you will recognise in a list, e.g. “Birthday gift card”."
             className="sm:col-span-2"
           >
-            <Input id="title" name="title" defaultValue={initial.title} maxLength={120} required autoFocus />
+            <Input
+              id="title"
+              name="title"
+              defaultValue={initial.title}
+              maxLength={120}
+              required
+              autoFocus
+            />
           </Field>
 
           <Field label="Category" name="category" required error={state.errors?.category}>
-            <Select id="category" name="category" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <Select
+              id="category"
+              name="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
               {BENEFIT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {CATEGORY_LABELS[c]}
@@ -85,7 +97,13 @@ export function BenefitForm({
           </Field>
 
           <Field label="Provider or merchant" name="merchant" error={state.errors?.merchant}>
-            <Input id="merchant" name="merchant" defaultValue={initial.merchant} maxLength={80} list="merchant-hints" />
+            <Input
+              id="merchant"
+              name="merchant"
+              defaultValue={initial.merchant}
+              maxLength={80}
+              list="merchant-hints"
+            />
           </Field>
         </div>
       </Card>
@@ -97,7 +115,12 @@ export function BenefitForm({
         />
         <div className="grid gap-4 p-4 sm:grid-cols-3 sm:p-5">
           <Field label="Currency" name="currency" error={state.errors?.currency}>
-            <Select id="currency" name="currency" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <Select
+              id="currency"
+              name="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
               {SUPPORTED_CURRENCIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -126,7 +149,11 @@ export function BenefitForm({
             label="Remaining value"
             name="currentValue"
             error={state.errors?.currentValue}
-            hint={mode === 'edit' ? 'Change this from the record page so the history stays intact.' : 'If some is already spent.'}
+            hint={
+              mode === 'edit'
+                ? 'Change this from the record page so the history stays intact.'
+                : 'If some is already spent.'
+            }
           >
             <Input
               id="currentValue"
@@ -145,11 +172,25 @@ export function BenefitForm({
             error={state.errors?.units}
             hint="For example 10 classes."
           >
-            <Input id="units" name="units" inputMode="numeric" defaultValue={initial.units} placeholder="10" className="nums" disabled={mode === 'edit'} />
+            <Input
+              id="units"
+              name="units"
+              inputMode="numeric"
+              defaultValue={initial.units}
+              placeholder="10"
+              className="nums"
+              disabled={mode === 'edit'}
+            />
           </Field>
 
           <Field label="What is a unit called?" name="unitLabel" error={state.errors?.unitLabel}>
-            <Input id="unitLabel" name="unitLabel" defaultValue={initial.unitLabel} placeholder="classes" maxLength={30} />
+            <Input
+              id="unitLabel"
+              name="unitLabel"
+              defaultValue={initial.unitLabel}
+              placeholder="classes"
+              maxLength={30}
+            />
           </Field>
         </div>
         {mode === 'edit' ? (
@@ -160,13 +201,21 @@ export function BenefitForm({
       </Card>
 
       <Card>
-        <CardHeader title="Dates" description="An expiry date turns into reminders automatically." />
+        <CardHeader
+          title="Dates"
+          description="An expiry date turns into reminders automatically."
+        />
         <div className="grid gap-4 p-4 sm:grid-cols-3 sm:p-5">
           <Field label="Issued on" name="issuedAt" error={state.errors?.issuedAt}>
             <Input id="issuedAt" name="issuedAt" type="date" defaultValue={initial.issuedAt} />
           </Field>
           <Field label="Received on" name="receivedAt" error={state.errors?.receivedAt}>
-            <Input id="receivedAt" name="receivedAt" type="date" defaultValue={initial.receivedAt} />
+            <Input
+              id="receivedAt"
+              name="receivedAt"
+              type="date"
+              defaultValue={initial.receivedAt}
+            />
           </Field>
           <Field
             label="Expires on"
@@ -179,7 +228,10 @@ export function BenefitForm({
         </div>
       </Card>
 
-      <details className="vb-card" open={Boolean(initial.codeHint || initial.conditions || initial.notes || initial.tags)}>
+      <details
+        className="vb-card"
+        open={Boolean(initial.codeHint || initial.conditions || initial.notes || initial.tags)}
+      >
         <summary className="cursor-pointer px-4 py-3 text-[0.9375rem] font-semibold sm:px-5">
           Code, conditions and notes
         </summary>
@@ -197,7 +249,11 @@ export function BenefitForm({
               autoComplete="off"
               spellCheck={false}
               className="font-mono"
-              placeholder={initial.codeHint ? `${initial.codeHint} — type a new code to replace it` : 'GC-1234-5678'}
+              placeholder={
+                initial.codeHint
+                  ? `${initial.codeHint} — type a new code to replace it`
+                  : 'GC-1234-5678'
+              }
             />
           </Field>
           {initial.codeHint ? <Checkbox name="clearCode" label="Remove the stored code" /> : null}
@@ -208,14 +264,31 @@ export function BenefitForm({
             error={state.errors?.conditions}
             hint="Minimum spend, excluded items, single use — whatever the small print says."
           >
-            <Textarea id="conditions" name="conditions" defaultValue={initial.conditions} maxLength={2000} rows={3} />
+            <Textarea
+              id="conditions"
+              name="conditions"
+              defaultValue={initial.conditions}
+              maxLength={2000}
+              rows={3}
+            />
           </Field>
 
           <Field label="Notes" name="notes" error={state.errors?.notes}>
-            <Textarea id="notes" name="notes" defaultValue={initial.notes} maxLength={2000} rows={3} />
+            <Textarea
+              id="notes"
+              name="notes"
+              defaultValue={initial.notes}
+              maxLength={2000}
+              rows={3}
+            />
           </Field>
 
-          <Field label="Tags" name="tags" error={state.errors?.tags} hint="Comma separated, for example: travel, gift, work.">
+          <Field
+            label="Tags"
+            name="tags"
+            error={state.errors?.tags}
+            hint="Comma separated, for example: travel, gift, work."
+          >
             <Input id="tags" name="tags" defaultValue={initial.tags} maxLength={200} />
           </Field>
         </div>
@@ -227,14 +300,23 @@ export function BenefitForm({
         </summary>
         <div className="grid gap-4 border-t border-[var(--border)] p-4 sm:grid-cols-3 sm:p-5">
           <Field label="Repeats" name="recurrence">
-            <Select id="recurrence" name="recurrence" value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
+            <Select
+              id="recurrence"
+              name="recurrence"
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value)}
+            >
               <option value="none">Does not repeat</option>
               <option value="monthly">Every month</option>
               <option value="quarterly">Every quarter</option>
               <option value="yearly">Every year</option>
             </Select>
           </Field>
-          <Field label="Units added each period" name="recurrenceUnits" error={state.errors?.recurrenceUnits}>
+          <Field
+            label="Units added each period"
+            name="recurrenceUnits"
+            error={state.errors?.recurrenceUnits}
+          >
             <Input
               id="recurrenceUnits"
               name="recurrenceUnits"
@@ -256,14 +338,16 @@ export function BenefitForm({
         </div>
         {recurrence !== 'none' ? (
           <Alert tone="neutral" className="mx-4 mb-4 sm:mx-5">
-            Each new period tops the balance up once. Running the app twice in the same month does not add
-            it twice.
+            Each new period tops the balance up once. Running the app twice in the same month does
+            not add it twice.
           </Alert>
         ) : null}
       </details>
 
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton pendingLabel="Saving…">{mode === 'create' ? 'Save benefit' : 'Save changes'}</SubmitButton>
+        <SubmitButton pendingLabel="Saving…">
+          {mode === 'create' ? 'Save benefit' : 'Save changes'}
+        </SubmitButton>
         <Link
           href={initial.id ? `/app/benefits/${initial.id}` : '/app/benefits'}
           className="text-sm text-[var(--text-muted)] hover:underline"

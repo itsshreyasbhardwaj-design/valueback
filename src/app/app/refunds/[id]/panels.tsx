@@ -35,7 +35,11 @@ export function TransitionPanel({
   const needsReason = status === 'closed_without_receipt';
 
   if (allowed.length === 0) {
-    return <p className="p-4 text-sm text-[var(--text-muted)]">No further status changes are possible from here.</p>;
+    return (
+      <p className="p-4 text-sm text-[var(--text-muted)]">
+        No further status changes are possible from here.
+      </p>
+    );
   }
 
   return (
@@ -44,7 +48,12 @@ export function TransitionPanel({
       <FormMessage state={state} />
 
       <Field label="Move this case to" name="status" required>
-        <Select id="status" name="status" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <Select
+          id="status"
+          name="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
           {allowed.map((s) => (
             <option key={s} value={s}>
               {labels[s]}
@@ -56,30 +65,61 @@ export function TransitionPanel({
       {needsAmount ? (
         <>
           <Alert tone="neutral">
-            Only confirm what actually reached your account. {outstandingLabel} is still outstanding on this
-            case, and only the amount you enter here is counted as recovered.
+            Only confirm what actually reached your account. {outstandingLabel} is still outstanding
+            on this case, and only the amount you enter here is counted as recovered.
           </Alert>
           <Field
             label={`Amount received now (${currency})`}
             name="receivedAmount"
             error={state.errors?.receivedAmount}
-            hint={status === 'received_confirmed' ? 'Leave blank to confirm the full outstanding amount.' : 'The part that arrived.'}
+            hint={
+              status === 'received_confirmed'
+                ? 'Leave blank to confirm the full outstanding amount.'
+                : 'The part that arrived.'
+            }
             required={status === 'partially_received'}
           >
-            <Input id="receivedAmount" name="receivedAmount" inputMode="decimal" className="nums" placeholder="1500.00" />
+            <Input
+              id="receivedAmount"
+              name="receivedAmount"
+              inputMode="decimal"
+              className="nums"
+              placeholder="1500.00"
+            />
           </Field>
         </>
       ) : null}
 
       {needsReason ? (
-        <Field label="Why is it being closed?" name="closedReason" error={state.errors?.closedReason}>
-          <Input id="closedReason" name="closedReason" maxLength={300} placeholder="Merchant refused; not worth pursuing" />
+        <Field
+          label="Why is it being closed?"
+          name="closedReason"
+          error={state.errors?.closedReason}
+        >
+          <Input
+            id="closedReason"
+            name="closedReason"
+            maxLength={300}
+            placeholder="Merchant refused; not worth pursuing"
+          />
         </Field>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="When did this happen?" name="occurredAt" required error={state.errors?.occurredAt}>
-          <Input id="occurredAt" name="occurredAt" type="date" defaultValue={today} max={today} required />
+        <Field
+          label="When did this happen?"
+          name="occurredAt"
+          required
+          error={state.errors?.occurredAt}
+        >
+          <Input
+            id="occurredAt"
+            name="occurredAt"
+            type="date"
+            defaultValue={today}
+            max={today}
+            required
+          />
         </Field>
         <Field label="Note for the timeline" name="note" error={state.errors?.note}>
           <Input id="note" name="note" maxLength={500} placeholder="Agent confirmed on chat" />
@@ -101,27 +141,34 @@ export function FollowUpDraft({ subject, body }: { subject: string; body: string
         setCopied(which);
         setTimeout(() => setCopied('none'), 2000);
       },
-      () => setError('Your browser blocked clipboard access. Select the text and copy it manually.'),
+      () =>
+        setError('Your browser blocked clipboard access. Select the text and copy it manually.'),
     );
   }
 
   return (
     <div className="space-y-3 p-4 sm:p-5">
       <Alert tone="neutral">
-        Built from the facts already on this case. It does not claim the merchant agreed to anything or
-        that money was sent. No email provider is connected, so ValueBack cannot send it — copy it and
-        send it yourself.
+        Built from the facts already on this case. It does not claim the merchant agreed to anything
+        or that money was sent. No email provider is connected, so ValueBack cannot send it — copy
+        it and send it yourself.
       </Alert>
 
       <div>
         <div className="flex items-center justify-between gap-2">
           <p className="vb-label mb-0">Subject</p>
           <Button type="button" variant="ghost" size="sm" onClick={() => copy(subject, 'subject')}>
-            {copied === 'subject' ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+            {copied === 'subject' ? (
+              <Check size={13} aria-hidden />
+            ) : (
+              <Copy size={13} aria-hidden />
+            )}
             {copied === 'subject' ? 'Copied' : 'Copy'}
           </Button>
         </div>
-        <p className="rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] px-3 py-2 text-sm">{subject}</p>
+        <p className="rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] px-3 py-2 text-sm">
+          {subject}
+        </p>
       </div>
 
       <div>
@@ -169,7 +216,13 @@ export function ClaimActionPanel({
         </Select>
       </Field>
       <Field label="Summary" name="summary" required error={state.errors?.summary}>
-        <Input id="summary" name="summary" maxLength={500} required placeholder="Chased on chat, told to wait 5 more days" />
+        <Input
+          id="summary"
+          name="summary"
+          maxLength={500}
+          required
+          placeholder="Chased on chat, told to wait 5 more days"
+        />
       </Field>
       {members.length > 1 ? (
         <Field label="Assign the next step to" name="assigneeUserId">
@@ -226,8 +279,19 @@ export function RefundReminderPanel({ caseId, today }: { caseId: string; today: 
   );
 }
 
-export function RefundDangerZone({ caseId, archived, isOwner }: { caseId: string; archived: boolean; isOwner: boolean }) {
-  const [archiveState, archiveAction] = useActionState<FormState, FormData>(archiveRefundAction, {});
+export function RefundDangerZone({
+  caseId,
+  archived,
+  isOwner,
+}: {
+  caseId: string;
+  archived: boolean;
+  isOwner: boolean;
+}) {
+  const [archiveState, archiveAction] = useActionState<FormState, FormData>(
+    archiveRefundAction,
+    {},
+  );
   const [deleteState, deleteAction] = useActionState<FormState, FormData>(deleteRefundAction, {});
   const [open, setOpen] = useState(false);
 
@@ -251,11 +315,16 @@ export function RefundDangerZone({ caseId, archived, isOwner }: { caseId: string
           <form action={deleteAction} className="space-y-3" noValidate>
             <input type="hidden" name="id" value={caseId} />
             <Alert tone="danger" title="This cannot be undone">
-              The case, its timeline and its follow-ups go. Any amount you already confirmed receiving
-              stays in your recovery history, because that happened.
+              The case, its timeline and its follow-ups go. Any amount you already confirmed
+              receiving stays in your recovery history, because that happened.
             </Alert>
             <FormMessage state={deleteState} />
-            <Field label="Type delete to confirm" name="confirm" required error={deleteState.errors?.confirm}>
+            <Field
+              label="Type delete to confirm"
+              name="confirm"
+              required
+              error={deleteState.errors?.confirm}
+            >
               <Input id="confirm" name="confirm" placeholder="delete" autoComplete="off" required />
             </Field>
             <div className="flex gap-2">

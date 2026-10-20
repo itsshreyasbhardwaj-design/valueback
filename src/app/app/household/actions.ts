@@ -13,7 +13,13 @@ import {
   revokeInvite,
 } from '@/lib/household';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
-import { fieldErrors, formObject, householdSchema, inviteSchema, type FormState } from '@/lib/validation';
+import {
+  fieldErrors,
+  formObject,
+  householdSchema,
+  inviteSchema,
+  type FormState,
+} from '@/lib/validation';
 
 export async function createHouseholdAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
@@ -22,7 +28,10 @@ export async function createHouseholdAction(_prev: FormState, fd: FormData): Pro
   const result = createHousehold(user.id, parsed.data.name, user.plan);
   if (!result.ok) return { ok: false, errors: { _form: result.error } };
   revalidatePath('/app/household');
-  return { ok: true, message: `“${result.household.name}” created. Nothing is shared into it until you share a record.` };
+  return {
+    ok: true,
+    message: `“${result.household.name}” created. Nothing is shared into it until you share a record.`,
+  };
 }
 
 export async function createInviteAction(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -55,7 +64,11 @@ export async function acceptInviteAction(_prev: FormState, fd: FormData): Promis
   const token = String(fd.get('token') ?? '').trim();
   if (!token) return { ok: false, errors: { token: 'Paste the invitation code.' } };
 
-  const limit = rateLimit(`invite:${user.id}`, LIMITS.inviteAccept.limit, LIMITS.inviteAccept.windowMs);
+  const limit = rateLimit(
+    `invite:${user.id}`,
+    LIMITS.inviteAccept.limit,
+    LIMITS.inviteAccept.windowMs,
+  );
   if (!limit.ok) return { ok: false, errors: { _form: 'Too many attempts. Try again later.' } };
 
   const preview = previewInvite(token);
@@ -64,7 +77,10 @@ export async function acceptInviteAction(_prev: FormState, fd: FormData): Promis
   const result = acceptInvite(user.id, token);
   if (!result.ok) return { ok: false, errors: { token: result.error } };
   revalidatePath('/app/household');
-  return { ok: true, message: `You have joined “${preview.preview.householdName}” as a ${preview.preview.role}.` };
+  return {
+    ok: true,
+    message: `You have joined “${preview.preview.householdName}” as a ${preview.preview.role}.`,
+  };
 }
 
 export async function leaveHouseholdAction(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -72,12 +88,19 @@ export async function leaveHouseholdAction(_prev: FormState, fd: FormData): Prom
   const result = leaveHousehold(user.id, String(fd.get('householdId') ?? ''));
   if (!result.ok) return { ok: false, errors: { _form: result.error } };
   revalidatePath('/app/household');
-  return { ok: true, message: 'You have left the household, and anything you shared into it is no longer shared.' };
+  return {
+    ok: true,
+    message: 'You have left the household, and anything you shared into it is no longer shared.',
+  };
 }
 
 export async function removeMemberAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
-  const result = removeMember(user.id, String(fd.get('householdId') ?? ''), String(fd.get('memberUserId') ?? ''));
+  const result = removeMember(
+    user.id,
+    String(fd.get('householdId') ?? ''),
+    String(fd.get('memberUserId') ?? ''),
+  );
   if (!result.ok) return { ok: false, errors: { _form: result.error } };
   revalidatePath('/app/household');
   return { ok: true, message: 'Member removed. Their access ends on their next request.' };
@@ -85,7 +108,11 @@ export async function removeMemberAction(_prev: FormState, fd: FormData): Promis
 
 export async function deleteHouseholdAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
-  if (String(fd.get('confirm') ?? '').trim().toLowerCase() !== 'delete') {
+  if (
+    String(fd.get('confirm') ?? '')
+      .trim()
+      .toLowerCase() !== 'delete'
+  ) {
     return { ok: false, errors: { confirm: 'Type delete to confirm.' } };
   }
   const result = deleteHousehold(user.id, String(fd.get('householdId') ?? ''));

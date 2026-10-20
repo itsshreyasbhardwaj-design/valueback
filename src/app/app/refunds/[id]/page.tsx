@@ -37,9 +37,18 @@ import { moneyInput } from '@/lib/format';
 export const metadata: Metadata = { title: 'Refund case' };
 
 const STATUS_LABELS = Object.fromEntries(
-  (['requested', 'accepted', 'initiated', 'awaiting_receipt', 'received_confirmed', 'partially_received', 'disputed', 'closed_without_receipt'] as const).map(
-    (s) => [s, refundStatusLabel(s)],
-  ),
+  (
+    [
+      'requested',
+      'accepted',
+      'initiated',
+      'awaiting_receipt',
+      'received_confirmed',
+      'partially_received',
+      'disputed',
+      'closed_without_receipt',
+    ] as const
+  ).map((s) => [s, refundStatusLabel(s)]),
 );
 
 export default async function RefundDetailPage({
@@ -94,16 +103,23 @@ export default async function RefundDetailPage({
         <span className="text-[var(--text)]">{refundCase.merchant}</span>
       </nav>
 
-      {sp.created ? <Alert tone="positive" className="mb-4">Case opened. A check-in reminder has been scheduled.</Alert> : null}
+      {sp.created ? (
+        <Alert tone="positive" className="mb-4">
+          Case opened. A check-in reminder has been scheduled.
+        </Alert>
+      ) : null}
       {!access.isOwner ? (
         <Alert tone="info" className="mb-4">
-          Shared with you by your household. You have {access.permission === 'edit' ? 'view and edit' : 'view-only'} access.
+          Shared with you by your household. You have{' '}
+          {access.permission === 'edit' ? 'view and edit' : 'view-only'} access.
         </Alert>
       ) : null}
 
       <PageHeader
         title={`Refund from ${refundCase.merchant}`}
-        description={refundCase.orderRef ? `Order ${refundCase.orderRef}` : 'No order reference recorded'}
+        description={
+          refundCase.orderRef ? `Order ${refundCase.orderRef}` : 'No order reference recorded'
+        }
       />
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -112,7 +128,9 @@ export default async function RefundDetailPage({
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-[0.8125rem] text-[var(--text-muted)]">Still outstanding</p>
-                <p className="nums mt-1 text-3xl font-semibold">{money(outstanding, refundCase.currency)}</p>
+                <p className="nums mt-1 text-3xl font-semibold">
+                  {money(outstanding, refundCase.currency)}
+                </p>
                 <p className="nums mt-1 text-sm text-[var(--text-muted)]">
                   of {money(refundCase.amountMinor, refundCase.currency)} expected
                   {refundCase.receivedAmountMinor > 0
@@ -133,7 +151,11 @@ export default async function RefundDetailPage({
                   {refundStatusLabel(refundCase.status)}
                 </Badge>
                 {refundCase.expectedByDate ? (
-                  <Badge tone={refundCase.expectedByDate < today && outstanding > 0 ? 'danger' : 'neutral'}>
+                  <Badge
+                    tone={
+                      refundCase.expectedByDate < today && outstanding > 0 ? 'danger' : 'neutral'
+                    }
+                  >
                     Expected by {fmtDate(refundCase.expectedByDate, prefs)}
                   </Badge>
                 ) : null}
@@ -143,15 +165,17 @@ export default async function RefundDetailPage({
 
             {refundCase.status === 'received_confirmed' ? (
               <Alert tone="positive" title="You confirmed this arrived" className="mt-4">
-                {money(refundCase.receivedAmountMinor, refundCase.currency)} is counted in your confirmed
-                recovered total, dated {fmtDate(refundCase.confirmedAt?.slice(0, 10) ?? null, prefs)}.
+                {money(refundCase.receivedAmountMinor, refundCase.currency)} is counted in your
+                confirmed recovered total, dated{' '}
+                {fmtDate(refundCase.confirmedAt?.slice(0, 10) ?? null, prefs)}.
               </Alert>
             ) : null}
 
             {priority.reasons.length > 0 ? (
               <div className="mt-4 rounded-lg border border-[var(--border)] p-3">
                 <p className="flex items-center gap-2 text-sm font-semibold">
-                  <AlertTriangle size={14} className="text-[var(--warn)]" aria-hidden /> {band.label}
+                  <AlertTriangle size={14} className="text-[var(--warn)]" aria-hidden />{' '}
+                  {band.label}
                 </p>
                 <ul className="mt-1.5 space-y-1 text-[0.8125rem] text-[var(--text-muted)]">
                   {priority.reasons.map((r) => (
@@ -180,11 +204,18 @@ export default async function RefundDetailPage({
           ) : null}
 
           <Card>
-            <CardHeader title="Timeline" description="Every status change, with the date it happened." />
+            <CardHeader
+              title="Timeline"
+              description="Every status change, with the date it happened."
+            />
             <ol className="divide-y divide-[var(--border)]">
               {timeline.map((e) => (
                 <li key={e.id} className="flex gap-3 px-4 py-3 sm:px-5">
-                  <History size={15} className="mt-0.5 shrink-0 text-[var(--text-faint)]" aria-hidden />
+                  <History
+                    size={15}
+                    className="mt-0.5 shrink-0 text-[var(--text-faint)]"
+                    aria-hidden
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">
                       {e.fromStatus ? `${refundStatusLabel(e.fromStatus)} → ` : ''}
@@ -195,7 +226,9 @@ export default async function RefundDetailPage({
                         {money(e.amountMinor, refundCase.currency)} confirmed received
                       </p>
                     ) : null}
-                    {e.note ? <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{e.note}</p> : null}
+                    {e.note ? (
+                      <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{e.note}</p>
+                    ) : null}
                     <p className="mt-0.5 text-xs text-[var(--text-faint)]">
                       {fmtDate(e.occurredAt, prefs)} · recorded {timestamp(e.createdAt, prefs)}
                       {e.actorUserId === user.id ? ' by you' : ' by a household member'}
@@ -207,18 +240,29 @@ export default async function RefundDetailPage({
           </Card>
 
           <Card>
-            <CardHeader title="Follow-up message" description="Drafted locally from this case. Copy it and send it yourself." />
+            <CardHeader
+              title="Follow-up message"
+              description="Drafted locally from this case. Copy it and send it yourself."
+            />
             <FollowUpDraft subject={draft.subject} body={draft.body} />
           </Card>
 
           <Card>
-            <CardHeader title="Follow-ups you have logged" description="A record of what you have already tried." />
+            <CardHeader
+              title="Follow-ups you have logged"
+              description="A record of what you have already tried."
+            />
             {actions.length === 0 ? (
-              <p className="px-4 py-5 text-center text-sm text-[var(--text-muted)]">Nothing logged yet.</p>
+              <p className="px-4 py-5 text-center text-sm text-[var(--text-muted)]">
+                Nothing logged yet.
+              </p>
             ) : (
               <ul className="divide-y divide-[var(--border)]">
                 {actions.map((a) => (
-                  <li key={a.id} className="flex items-start justify-between gap-3 px-4 py-3 sm:px-5">
+                  <li
+                    key={a.id}
+                    className="flex items-start justify-between gap-3 px-4 py-3 sm:px-5"
+                  >
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{a.summary}</p>
                       <p className="mt-0.5 text-xs text-[var(--text-faint)]">
@@ -227,13 +271,23 @@ export default async function RefundDetailPage({
                         {a.completedAt ? ' · done' : ''}
                       </p>
                     </div>
-                    {!a.completedAt && canEdit ? <CompleteActionButton actionId={a.id} caseId={refundCase.id} /> : null}
-                    {a.completedAt ? <CheckCircle2 size={16} className="shrink-0 text-[var(--accent)]" aria-hidden /> : null}
+                    {!a.completedAt && canEdit ? (
+                      <CompleteActionButton actionId={a.id} caseId={refundCase.id} />
+                    ) : null}
+                    {a.completedAt ? (
+                      <CheckCircle2
+                        size={16}
+                        className="shrink-0 text-[var(--accent)]"
+                        aria-hidden
+                      />
+                    ) : null}
                   </li>
                 ))}
               </ul>
             )}
-            {canEdit ? <ClaimActionPanel caseId={refundCase.id} members={householdMembers} /> : null}
+            {canEdit ? (
+              <ClaimActionPanel caseId={refundCase.id} members={householdMembers} />
+            ) : null}
           </Card>
 
           <Card>
@@ -241,19 +295,31 @@ export default async function RefundDetailPage({
               title="Evidence"
               description="Receipts, chat transcripts and confirmation emails."
               action={
-                <Link href={`/app/documents?refundCaseId=${refundCase.id}`} className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline">
+                <Link
+                  href={`/app/documents?refundCaseId=${refundCase.id}`}
+                  className="inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
+                >
                   <Paperclip size={13} aria-hidden /> Attach
                 </Link>
               }
             />
             {docs.length === 0 ? (
-              <p className="px-4 py-5 text-center text-sm text-[var(--text-muted)]">No documents attached yet.</p>
+              <p className="px-4 py-5 text-center text-sm text-[var(--text-muted)]">
+                No documents attached yet.
+              </p>
             ) : (
               <ul className="divide-y divide-[var(--border)]">
                 {docs.map((d) => (
                   <li key={d.id}>
-                    <Link href={`/app/documents/${d.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--bg-subtle)] sm:px-5">
-                      <FileText size={15} className="shrink-0 text-[var(--text-faint)]" aria-hidden />
+                    <Link
+                      href={`/app/documents/${d.id}`}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--bg-subtle)] sm:px-5"
+                    >
+                      <FileText
+                        size={15}
+                        className="shrink-0 text-[var(--text-faint)]"
+                        aria-hidden
+                      />
                       <span className="min-w-0 flex-1 truncate text-sm">{d.filename}</span>
                     </Link>
                   </li>
@@ -293,19 +359,27 @@ export default async function RefundDetailPage({
 
           {duplicates.length > 0 ? (
             <Card>
-              <CardHeader title="Possible duplicates" description="Suggestions only — nothing is merged for you." />
+              <CardHeader
+                title="Possible duplicates"
+                description="Suggestions only — nothing is merged for you."
+              />
               <ul className="divide-y divide-[var(--border)]">
                 {duplicates.map((d) => (
                   <li key={d.record.id} className="px-4 py-3 sm:px-5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <Link href={`/app/refunds/${d.record.id}`} className="font-medium hover:underline">
+                      <Link
+                        href={`/app/refunds/${d.record.id}`}
+                        className="font-medium hover:underline"
+                      >
                         {d.record.merchant} · {money(d.record.amountMinor, d.record.currency)}
                       </Link>
                       <Badge tone={d.strength === 'strong' ? 'warning' : 'neutral'}>
                         {d.strength === 'strong' ? 'Likely the same' : 'Possibly the same'}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-[0.8125rem] text-[var(--text-muted)]">Matches on {d.signals.join(', ')}.</p>
+                    <p className="mt-1 text-[0.8125rem] text-[var(--text-muted)]">
+                      Matches on {d.signals.join(', ')}.
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -346,7 +420,10 @@ export default async function RefundDetailPage({
           </Card>
 
           <Card>
-            <CardHeader title="Reminders" description={`${caseReminders.filter((r) => r.status === 'scheduled').length} scheduled.`} />
+            <CardHeader
+              title="Reminders"
+              description={`${caseReminders.filter((r) => r.status === 'scheduled').length} scheduled.`}
+            />
             {caseReminders.length > 0 ? (
               <ul className="divide-y divide-[var(--border)] text-sm">
                 {caseReminders.slice(0, 6).map((r) => (
@@ -384,7 +461,11 @@ export default async function RefundDetailPage({
           {canEdit ? (
             <Card>
               <CardHeader title="Archive or delete" />
-              <RefundDangerZone caseId={refundCase.id} archived={Boolean(refundCase.archivedAt)} isOwner={access.isOwner} />
+              <RefundDangerZone
+                caseId={refundCase.id}
+                archived={Boolean(refundCase.archivedAt)}
+                isOwner={access.isOwner}
+              />
             </Card>
           ) : null}
         </div>

@@ -47,7 +47,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             )}
           </div>
         </div>
-        <nav aria-label="Main, compact" className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-1.5 md:hidden">
+        <nav
+          aria-label="Main, compact"
+          className="flex gap-1 overflow-x-auto border-t border-[var(--border)] px-4 py-1.5 md:hidden"
+        >
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -69,8 +72,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <div className="md:col-span-2">
             <Wordmark />
             <p className="mt-3 max-w-sm text-sm text-[var(--text-muted)]">
-              A personal tracker for refunds, gift cards, store credits and prepaid benefits. ValueBack
-              organises what you are owed and reminds you to act. It never holds or moves money.
+              A personal tracker for refunds, gift cards, store credits and prepaid benefits.
+              ValueBack organises what you are owed and reminds you to act. It never holds or moves
+              money.
             </p>
           </div>
           <div>
@@ -105,13 +109,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               </li>
             </ul>
             <p className="mt-3 text-xs text-[var(--text-faint)]">
-              Legal pages are initial drafts and need review by a qualified lawyer before any public launch.
+              Legal pages are initial drafts and need review by a qualified lawyer before any public
+              launch.
             </p>
           </div>
         </div>
         <div className="border-t border-[var(--border)] px-4 py-4 text-center text-xs text-[var(--text-faint)] sm:px-6">
-          ValueBack is not a bank, wallet, payment processor or financial adviser. It stores records you
-          enter and never moves money.
+          ValueBack is not a bank, wallet, payment processor or financial adviser. It stores records
+          you enter and never moves money.
         </div>
       </footer>
     </div>

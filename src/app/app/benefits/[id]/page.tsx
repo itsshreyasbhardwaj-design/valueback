@@ -2,7 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { and, eq } from 'drizzle-orm';
-import { AlertTriangle, FileText, History, Paperclip, Pencil, Share2, ShieldCheck } from 'lucide-react';
+import {
+  AlertTriangle,
+  FileText,
+  History,
+  Paperclip,
+  Pencil,
+  Share2,
+  ShieldCheck,
+} from 'lucide-react';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { reminders } from '@/lib/db/schema';
@@ -13,10 +21,24 @@ import { findBenefitDuplicates } from '@/lib/duplicates';
 import { grantsForRecord, householdsOf } from '@/lib/household';
 import { scoreBenefit, evidenceLabel, priorityBand } from '@/lib/priority';
 import { todayIso } from '@/lib/dates';
-import { CATEGORY_LABELS, STATUS_LABELS, date as fmtDate, money, parseTags, timestamp } from '@/lib/format';
+import {
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  date as fmtDate,
+  money,
+  parseTags,
+  timestamp,
+} from '@/lib/format';
 import { Alert, Badge, Card, CardHeader, LinkButton, PageHeader } from '@/components/ui';
 import { EvidenceBadge, ExpiryHint, StatusBadge } from '@/components/records';
-import { BalancePanel, CodeReveal, DangerZone, ReminderPanel, SharePanel, StatusControl } from './panels';
+import {
+  BalancePanel,
+  CodeReveal,
+  DangerZone,
+  ReminderPanel,
+  SharePanel,
+  StatusControl,
+} from './panels';
 
 export const metadata: Metadata = { title: 'Benefit' };
 
@@ -68,11 +90,20 @@ export default async function BenefitDetailPage({
         <span className="text-[var(--text)]">{benefit.title}</span>
       </nav>
 
-      {sp.created ? <Alert tone="positive" className="mb-4">Saved. Reminders were scheduled from the expiry date if you set one.</Alert> : null}
-      {sp.saved ? <Alert tone="positive" className="mb-4">Changes saved.</Alert> : null}
+      {sp.created ? (
+        <Alert tone="positive" className="mb-4">
+          Saved. Reminders were scheduled from the expiry date if you set one.
+        </Alert>
+      ) : null}
+      {sp.saved ? (
+        <Alert tone="positive" className="mb-4">
+          Changes saved.
+        </Alert>
+      ) : null}
       {!access.isOwner ? (
         <Alert tone="info" className="mb-4">
-          This record belongs to someone in your household. You have {access.permission === 'edit' ? 'view and edit' : 'view-only'} access.
+          This record belongs to someone in your household. You have{' '}
+          {access.permission === 'edit' ? 'view and edit' : 'view-only'} access.
         </Alert>
       ) : null}
 
@@ -95,7 +126,9 @@ export default async function BenefitDetailPage({
               <div>
                 <p className="text-[0.8125rem] text-[var(--text-muted)]">Remaining, as recorded</p>
                 <p className="nums mt-1 text-3xl font-semibold">
-                  {benefit.currentValueMinor != null ? money(benefit.currentValueMinor, benefit.currency) : '—'}
+                  {benefit.currentValueMinor != null
+                    ? money(benefit.currentValueMinor, benefit.currency)
+                    : '—'}
                 </p>
                 {benefit.currentUnits != null ? (
                   <p className="nums mt-1 text-sm text-[var(--text-muted)]">
@@ -103,7 +136,8 @@ export default async function BenefitDetailPage({
                     {benefit.originalUnits != null ? ` of ${benefit.originalUnits}` : ''}
                   </p>
                 ) : null}
-                {benefit.originalValueMinor != null && benefit.originalValueMinor !== benefit.currentValueMinor ? (
+                {benefit.originalValueMinor != null &&
+                benefit.originalValueMinor !== benefit.currentValueMinor ? (
                   <p className="nums mt-1 text-sm text-[var(--text-muted)]">
                     Originally {money(benefit.originalValueMinor, benefit.currency)}
                   </p>
@@ -118,9 +152,10 @@ export default async function BenefitDetailPage({
 
             {pastExpiry ? (
               <Alert tone="warning" title="The recorded expiry has passed" className="mt-4">
-                ValueBack has not written this off. A date in your notes is evidence about the terms, not
-                proof the right has ended. Check with {benefit.merchant || 'the provider'} — if it is still
-                valid, record the new expiry as a revalidation below.
+                ValueBack has not written this off. A date in your notes is evidence about the
+                terms, not proof the right has ended. Check with{' '}
+                {benefit.merchant || 'the provider'} — if it is still valid, record the new expiry
+                as a revalidation below.
               </Alert>
             ) : null}
 
@@ -161,12 +196,18 @@ export default async function BenefitDetailPage({
               description="Append-only. This ledger is where the balance above comes from."
             />
             {history.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">No entries yet.</p>
+              <p className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">
+                No entries yet.
+              </p>
             ) : (
               <ol className="divide-y divide-[var(--border)]">
                 {history.map((e) => (
                   <li key={e.id} className="flex gap-3 px-4 py-3 sm:px-5">
-                    <History size={15} className="mt-0.5 shrink-0 text-[var(--text-faint)]" aria-hidden />
+                    <History
+                      size={15}
+                      className="mt-0.5 shrink-0 text-[var(--text-faint)]"
+                      aria-hidden
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <p className="text-sm font-medium">{EVENT_LABELS[e.type]}</p>
@@ -185,7 +226,11 @@ export default async function BenefitDetailPage({
                           ) : null}
                         </p>
                       </div>
-                      {e.reason ? <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{e.reason}</p> : null}
+                      {e.reason ? (
+                        <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">
+                          {e.reason}
+                        </p>
+                      ) : null}
                       <p className="mt-0.5 text-xs text-[var(--text-faint)]">
                         {fmtDate(e.occurredAt, prefs)} · recorded {timestamp(e.createdAt, prefs)}
                         {e.resultingValueMinor != null
@@ -204,23 +249,37 @@ export default async function BenefitDetailPage({
               title="Evidence"
               description="Documents attached to this record."
               action={
-                <LinkButton href={`/app/documents?benefitId=${benefit.id}`} variant="secondary" size="sm">
+                <LinkButton
+                  href={`/app/documents?benefitId=${benefit.id}`}
+                  variant="secondary"
+                  size="sm"
+                >
                   <Paperclip size={13} aria-hidden /> Attach
                 </LinkButton>
               }
             />
             {docs.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">
-                No documents attached. A photo of the card or the confirmation email is useful later.
+                No documents attached. A photo of the card or the confirmation email is useful
+                later.
               </p>
             ) : (
               <ul className="divide-y divide-[var(--border)]">
                 {docs.map((d) => (
                   <li key={d.id}>
-                    <Link href={`/app/documents/${d.id}`} className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--bg-subtle)] sm:px-5">
-                      <FileText size={15} className="shrink-0 text-[var(--text-faint)]" aria-hidden />
+                    <Link
+                      href={`/app/documents/${d.id}`}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-[var(--bg-subtle)] sm:px-5"
+                    >
+                      <FileText
+                        size={15}
+                        className="shrink-0 text-[var(--text-faint)]"
+                        aria-hidden
+                      />
                       <span className="min-w-0 flex-1 truncate text-sm">{d.filename}</span>
-                      <Badge tone={d.extractionStatus === 'ok' ? 'positive' : 'neutral'}>{d.extractionStatus}</Badge>
+                      <Badge tone={d.extractionStatus === 'ok' ? 'positive' : 'neutral'}>
+                        {d.extractionStatus}
+                      </Badge>
                     </Link>
                   </li>
                 ))}
@@ -238,14 +297,19 @@ export default async function BenefitDetailPage({
                 {duplicates.map((d) => (
                   <li key={d.record.id} className="px-4 py-3 sm:px-5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <Link href={`/app/benefits/${d.record.id}`} className="font-medium hover:underline">
+                      <Link
+                        href={`/app/benefits/${d.record.id}`}
+                        className="font-medium hover:underline"
+                      >
                         {d.record.title}
                       </Link>
                       <Badge tone={d.strength === 'strong' ? 'warning' : 'neutral'}>
                         {d.strength === 'strong' ? 'Likely the same' : 'Possibly the same'}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-[0.8125rem] text-[var(--text-muted)]">Matches on {d.signals.join(', ')}.</p>
+                    <p className="mt-1 text-[0.8125rem] text-[var(--text-muted)]">
+                      Matches on {d.signals.join(', ')}.
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -280,7 +344,8 @@ export default async function BenefitDetailPage({
             <div className="border-t border-[var(--border)] px-4 py-3">
               <p className="text-xs font-semibold text-[var(--text-muted)]">Evidence basis</p>
               <p className="mt-1 flex items-center gap-1.5 text-sm">
-                <ShieldCheck size={14} className="text-[var(--accent)]" aria-hidden /> {evidence.label}
+                <ShieldCheck size={14} className="text-[var(--accent)]" aria-hidden />{' '}
+                {evidence.label}
               </p>
               <p className="mt-0.5 text-xs text-[var(--text-faint)]">{evidence.hint}</p>
             </div>
@@ -305,20 +370,27 @@ export default async function BenefitDetailPage({
           {benefit.conditions ? (
             <Card>
               <CardHeader title="Conditions" />
-              <p className="whitespace-pre-wrap px-4 py-3 text-sm text-[var(--text-muted)]">{benefit.conditions}</p>
+              <p className="whitespace-pre-wrap px-4 py-3 text-sm text-[var(--text-muted)]">
+                {benefit.conditions}
+              </p>
             </Card>
           ) : null}
 
           {benefit.notes ? (
             <Card>
               <CardHeader title="Notes" />
-              <p className="whitespace-pre-wrap px-4 py-3 text-sm text-[var(--text-muted)]">{benefit.notes}</p>
+              <p className="whitespace-pre-wrap px-4 py-3 text-sm text-[var(--text-muted)]">
+                {benefit.notes}
+              </p>
             </Card>
           ) : null}
 
           {canEdit ? (
             <Card>
-              <CardHeader title="Status" description={`Currently ${STATUS_LABELS[benefit.status].toLowerCase()}.`} />
+              <CardHeader
+                title="Status"
+                description={`Currently ${STATUS_LABELS[benefit.status].toLowerCase()}.`}
+              />
               <StatusControl
                 benefitId={benefit.id}
                 current={benefit.status}
@@ -329,7 +401,10 @@ export default async function BenefitDetailPage({
           ) : null}
 
           <Card>
-            <CardHeader title="Reminders" description={`${benefitReminders.filter((r) => r.status === 'scheduled').length} scheduled.`} />
+            <CardHeader
+              title="Reminders"
+              description={`${benefitReminders.filter((r) => r.status === 'scheduled').length} scheduled.`}
+            />
             {benefitReminders.length > 0 ? (
               <ul className="divide-y divide-[var(--border)] text-sm">
                 {benefitReminders.slice(0, 6).map((r) => (
@@ -346,7 +421,11 @@ export default async function BenefitDetailPage({
           </Card>
 
           <Card>
-            <CardHeader title="Sharing" description="Household members see nothing until you share a record explicitly." action={<Share2 size={15} className="text-[var(--text-faint)]" aria-hidden />} />
+            <CardHeader
+              title="Sharing"
+              description="Household members see nothing until you share a record explicitly."
+              action={<Share2 size={15} className="text-[var(--text-faint)]" aria-hidden />}
+            />
             <SharePanel
               resourceId={benefit.id}
               resourceType="benefit"
@@ -362,7 +441,10 @@ export default async function BenefitDetailPage({
 
           {access.isOwner ? (
             <Card>
-              <CardHeader title="Danger zone" description="Archiving is the reversible option — it lives in the status control above." />
+              <CardHeader
+                title="Danger zone"
+                description="Archiving is the reversible option — it lives in the status control above."
+              />
               <DangerZone benefitId={benefit.id} isOwner={access.isOwner} />
             </Card>
           ) : null}

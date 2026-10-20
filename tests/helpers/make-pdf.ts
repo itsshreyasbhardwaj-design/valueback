@@ -2,9 +2,7 @@
 export function makeTextPdf(lines: string[]): Buffer {
   const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
   const content =
-    `BT /F1 11 Tf 56 760 Td 14 TL\n` +
-    lines.map((l) => `(${esc(l)}) Tj T*`).join('\n') +
-    `\nET\n`;
+    `BT /F1 11 Tf 56 760 Td 14 TL\n` + lines.map((l) => `(${esc(l)}) Tj T*`).join('\n') + `\nET\n`;
 
   const objects = [
     '<</Type/Catalog/Pages 2 0 R>>',

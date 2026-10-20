@@ -3,7 +3,10 @@ import { cookies } from 'next/headers';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: { default: 'ValueBack — Don’t lose value you’ve already paid for', template: '%s · ValueBack' },
+  title: {
+    default: 'ValueBack — Don’t lose value you’ve already paid for',
+    template: '%s · ValueBack',
+  },
   description:
     'Track refunds, gift cards, store credits and prepaid benefits in one place. Know what needs your attention and act before the deadline passes.',
   applicationName: 'ValueBack',

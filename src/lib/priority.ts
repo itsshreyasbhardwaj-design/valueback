@@ -64,7 +64,9 @@ export function scoreBenefit(b: BenefitRow, today = todayIso()): Priority {
   }
   if (b.currentUnits && b.currentUnits > 0) {
     score += 5;
-    reasons.push(`${b.currentUnits} ${b.unitLabel || 'unit'}${b.currentUnits === 1 ? '' : 's'} remain unused.`);
+    reasons.push(
+      `${b.currentUnits} ${b.unitLabel || 'unit'}${b.currentUnits === 1 ? '' : 's'} remain unused.`,
+    );
   }
 
   if (b.evidence === 'user_entered') {
@@ -128,7 +130,10 @@ export function scoreRefund(rc: RefundRow, today = todayIso()): Priority {
   return { score: Math.min(100, score), reasons };
 }
 
-export function priorityBand(score: number): { label: string; tone: 'urgent' | 'warning' | 'neutral' } {
+export function priorityBand(score: number): {
+  label: string;
+  tone: 'urgent' | 'warning' | 'neutral';
+} {
   if (score >= 45) return { label: 'Needs attention', tone: 'urgent' };
   if (score >= 20) return { label: 'Worth a look', tone: 'warning' };
   return { label: 'No action needed', tone: 'neutral' };
@@ -138,14 +143,26 @@ export function priorityBand(score: number): { label: string; tone: 'urgent' | '
 export function evidenceLabel(e: string): { label: string; hint: string } {
   switch (e) {
     case 'document_extracted':
-      return { label: 'From a document', hint: 'Read from an uploaded document and accepted by you.' };
+      return {
+        label: 'From a document',
+        hint: 'Read from an uploaded document and accepted by you.',
+      };
     case 'user_confirmed':
       return { label: 'Confirmed by you', hint: 'You checked this against the provider.' };
     case 'reverified':
-      return { label: 'Re-verified', hint: 'You checked the balance again after it was first recorded.' };
+      return {
+        label: 'Re-verified',
+        hint: 'You checked the balance again after it was first recorded.',
+      };
     case 'provider_verified':
-      return { label: 'Provider verified', hint: 'Confirmed through an authorised provider connection.' };
+      return {
+        label: 'Provider verified',
+        hint: 'Confirmed through an authorised provider connection.',
+      };
     default:
-      return { label: 'Entered by you', hint: 'Typed in by hand and not checked against the provider.' };
+      return {
+        label: 'Entered by you',
+        hint: 'Typed in by hand and not checked against the provider.',
+      };
   }
 }

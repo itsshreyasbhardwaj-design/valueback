@@ -2,7 +2,11 @@ import { formatDate, type IsoDate } from './dates';
 import { formatMoney, minorToDecimalString } from './money';
 import type { BenefitCategory, BenefitStatus } from './db/schema';
 
-export type DisplayPrefs = { currency: string; dateFormat: 'dd/MM/yyyy' | 'MM/dd/yyyy' | 'yyyy-MM-dd'; locale?: string };
+export type DisplayPrefs = {
+  currency: string;
+  dateFormat: 'dd/MM/yyyy' | 'MM/dd/yyyy' | 'yyyy-MM-dd';
+  locale?: string;
+};
 
 export const CATEGORY_LABELS: Record<BenefitCategory, string> = {
   gift_card: 'Gift card',
@@ -27,7 +31,10 @@ export const STATUS_LABELS: Record<BenefitStatus, string> = {
   archived: 'Archived',
 };
 
-export const STATUS_TONES: Record<BenefitStatus, 'neutral' | 'positive' | 'warning' | 'danger' | 'info'> = {
+export const STATUS_TONES: Record<
+  BenefitStatus,
+  'neutral' | 'positive' | 'warning' | 'danger' | 'info'
+> = {
   unverified: 'neutral',
   available: 'positive',
   partially_used: 'info',
@@ -46,7 +53,10 @@ export function moneyInput(minor: number | null | undefined, currency: string): 
   return minor == null ? '' : minorToDecimalString(minor, currency);
 }
 
-export function date(value: IsoDate | null | undefined, prefs: Pick<DisplayPrefs, 'dateFormat'>): string {
+export function date(
+  value: IsoDate | null | undefined,
+  prefs: Pick<DisplayPrefs, 'dateFormat'>,
+): string {
   return formatDate(value, prefs.dateFormat);
 }
 

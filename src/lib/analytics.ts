@@ -104,7 +104,12 @@ export function metricsFor(userId: string, today = todayIso()) {
   for (const r of openRefunds) add(pending, r.currency, r.amount - r.received);
 
   const recovery = db
-    .select({ kind: recoveryEvents.kind, currency: recoveryEvents.currency, amount: recoveryEvents.amountMinor, units: recoveryEvents.units })
+    .select({
+      kind: recoveryEvents.kind,
+      currency: recoveryEvents.currency,
+      amount: recoveryEvents.amountMinor,
+      units: recoveryEvents.units,
+    })
     .from(recoveryEvents)
     .where(eq(recoveryEvents.userId, userId))
     .all();
@@ -134,17 +139,18 @@ export function metricsFor(userId: string, today = todayIso()) {
     }
   }
 
-  const upcoming = db
-    .select({ n: sql<number>`count(*)` })
-    .from(reminders)
-    .where(
-      and(
-        eq(reminders.userId, userId),
-        inArray(reminders.status, ['scheduled', 'snoozed']),
-        lte(reminders.dueAt, addDays(today, 14)),
-      ),
-    )
-    .get()?.n ?? 0;
+  const upcoming =
+    db
+      .select({ n: sql<number>`count(*)` })
+      .from(reminders)
+      .where(
+        and(
+          eq(reminders.userId, userId),
+          inArray(reminders.status, ['scheduled', 'snoozed']),
+          lte(reminders.dueAt, addDays(today, 14)),
+        ),
+      )
+      .get()?.n ?? 0;
 
   const metrics: Metric[] = [
     {
@@ -215,7 +221,8 @@ export function metricsFor(userId: string, today = todayIso()) {
     {
       key: 'credits_redeemed',
       label: 'Credit recorded as used',
-      description: 'Part of "Confirmed recovered" that came from gift cards, credits and vouchers you recorded using.',
+      description:
+        'Part of "Confirmed recovered" that came from gift cards, credits and vouchers you recorded using.',
       byCurrency: creditsRedeemed,
       count: creditsRedeemedCount,
       subsetOf: 'realised_total',
@@ -245,7 +252,11 @@ export function metricsFor(userId: string, today = todayIso()) {
 /** Outstanding value grouped by category, in one currency at a time. */
 export function categoryBreakdown(userId: string, currency: string, today = todayIso()) {
   const rows = db
-    .select({ category: benefits.category, value: benefits.currentValueMinor, expiresAt: benefits.expiresAt })
+    .select({
+      category: benefits.category,
+      value: benefits.currentValueMinor,
+      expiresAt: benefits.expiresAt,
+    })
     .from(benefits)
     .where(
       and(
@@ -271,7 +282,11 @@ export function categoryBreakdown(userId: string, currency: string, today = toda
 
 export function refundStatusBreakdown(userId: string) {
   const rows = db
-    .select({ status: refundCases.status, amount: refundCases.amountMinor, received: refundCases.receivedAmountMinor })
+    .select({
+      status: refundCases.status,
+      amount: refundCases.amountMinor,
+      received: refundCases.receivedAmountMinor,
+    })
     .from(refundCases)
     .where(and(visibleRefundWhere(userId), isNull(refundCases.archivedAt)))
     .all();
@@ -289,7 +304,11 @@ export function refundStatusBreakdown(userId: string) {
 export function monthlyRecovery(userId: string, currency: string, months = 12, today = todayIso()) {
   const start = addDays(today, -31 * months);
   const rows = db
-    .select({ kind: recoveryEvents.kind, amount: recoveryEvents.amountMinor, occurredAt: recoveryEvents.occurredAt })
+    .select({
+      kind: recoveryEvents.kind,
+      amount: recoveryEvents.amountMinor,
+      occurredAt: recoveryEvents.occurredAt,
+    })
     .from(recoveryEvents)
     .where(
       and(
@@ -344,7 +363,9 @@ export function expiryBuckets(userId: string, currency: string, today = todayIso
     { label: '90+ days', max: Infinity, amount: 0, count: 0 },
   ];
   for (const r of rows) {
-    const days = Math.round((Date.parse(`${r.expiresAt}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000);
+    const days = Math.round(
+      (Date.parse(`${r.expiresAt}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000,
+    );
     const b = buckets.find((x) => days <= x.max)!;
     b.amount += r.value ?? 0;
     b.count += 1;
@@ -366,7 +387,11 @@ export function merchantSummary(userId: string, currency: string, limit = 8) {
     )
     .all();
   const pending = db
-    .select({ merchant: refundCases.merchant, amount: refundCases.amountMinor, received: refundCases.receivedAmountMinor })
+    .select({
+      merchant: refundCases.merchant,
+      amount: refundCases.amountMinor,
+      received: refundCases.receivedAmountMinor,
+    })
     .from(refundCases)
     .where(
       and(

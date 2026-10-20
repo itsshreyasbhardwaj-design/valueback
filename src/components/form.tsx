@@ -21,7 +21,11 @@ export function SubmitButton({
 }
 
 /** Announces the result of a submitted form to everyone, including screen readers. */
-export function FormMessage({ state }: { state: { ok?: boolean; message?: string; errors?: Record<string, string> } }) {
+export function FormMessage({
+  state,
+}: {
+  state: { ok?: boolean; message?: string; errors?: Record<string, string> };
+}) {
   const formError = state.errors?._form;
   const message = formError ?? state.message;
   if (!message) return null;

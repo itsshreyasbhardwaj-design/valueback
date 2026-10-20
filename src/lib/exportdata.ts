@@ -58,15 +58,27 @@ export function exportJson(userId: string, opts: { includeCodes: boolean }) {
       codeCipher: undefined,
       tags: safeJson(b.tags),
       redemptionCode: opts.includeCodes && b.codeCipher ? decryptSecret(b.codeCipher) : undefined,
-      balanceEvents: db.select().from(balanceEvents).where(eq(balanceEvents.benefitId, b.id)).all()
+      balanceEvents: db
+        .select()
+        .from(balanceEvents)
+        .where(eq(balanceEvents.benefitId, b.id))
+        .all()
         .map((e) => ({ ...e, actorUserId: undefined })),
     })),
     refundCases: ownRefunds.map((r) => ({
       ...r,
       userId: undefined,
-      events: db.select().from(refundEvents).where(eq(refundEvents.refundCaseId, r.id)).all()
+      events: db
+        .select()
+        .from(refundEvents)
+        .where(eq(refundEvents.refundCaseId, r.id))
+        .all()
         .map((e) => ({ ...e, actorUserId: undefined })),
-      actions: db.select().from(claimActions).where(eq(claimActions.refundCaseId, r.id)).all()
+      actions: db
+        .select()
+        .from(claimActions)
+        .where(eq(claimActions.refundCaseId, r.id))
+        .all()
         .map((a) => ({ ...a, userId: undefined, assigneeUserId: undefined })),
     })),
     documents: ownDocuments.map((d) => ({
@@ -83,9 +95,17 @@ export function exportJson(userId: string, opts: { includeCodes: boolean }) {
       archivePath: `documents/${d.id}-${safeName(d.filename)}`,
       extractions: db.select().from(extractions).where(eq(extractions.documentId, d.id)).all(),
     })),
-    reminders: db.select().from(reminders).where(eq(reminders.userId, userId)).all()
+    reminders: db
+      .select()
+      .from(reminders)
+      .where(eq(reminders.userId, userId))
+      .all()
       .map((r) => ({ ...r, userId: undefined })),
-    recoveryEvents: db.select().from(recoveryEvents).where(eq(recoveryEvents.userId, userId)).all()
+    recoveryEvents: db
+      .select()
+      .from(recoveryEvents)
+      .where(eq(recoveryEvents.userId, userId))
+      .all()
       .map((r) => ({ ...r, userId: undefined })),
   };
   audit(userId, 'export.json', 'user', userId, { includeCodes: opts.includeCodes });
@@ -123,54 +143,155 @@ export function exportCsv(userId: string, kind: CsvKind): string {
   if (kind === 'benefits') {
     const rows = db.select().from(benefits).where(eq(benefits.userId, userId)).all();
     return toCsv(
-      ['id', 'title', 'category', 'merchant', 'currency', 'original_value', 'current_value', 'current_units', 'unit_label', 'status', 'evidence', 'issued_at', 'received_at', 'expires_at', 'verified_at', 'tags', 'conditions', 'notes', 'code_hint', 'archived_at', 'created_at'],
+      [
+        'id',
+        'title',
+        'category',
+        'merchant',
+        'currency',
+        'original_value',
+        'current_value',
+        'current_units',
+        'unit_label',
+        'status',
+        'evidence',
+        'issued_at',
+        'received_at',
+        'expires_at',
+        'verified_at',
+        'tags',
+        'conditions',
+        'notes',
+        'code_hint',
+        'archived_at',
+        'created_at',
+      ],
       rows.map((b) => [
-        b.id, b.title, b.category, b.merchant, b.currency,
+        b.id,
+        b.title,
+        b.category,
+        b.merchant,
+        b.currency,
         b.originalValueMinor == null ? '' : minorToDecimalString(b.originalValueMinor, b.currency),
         b.currentValueMinor == null ? '' : minorToDecimalString(b.currentValueMinor, b.currency),
-        b.currentUnits ?? '', b.unitLabel ?? '', b.status, b.evidence,
-        b.issuedAt ?? '', b.receivedAt ?? '', b.expiresAt ?? '', b.verifiedAt ?? '',
-        b.tags, b.conditions, b.notes, b.codeHint ?? '', b.archivedAt ?? '', b.createdAt,
+        b.currentUnits ?? '',
+        b.unitLabel ?? '',
+        b.status,
+        b.evidence,
+        b.issuedAt ?? '',
+        b.receivedAt ?? '',
+        b.expiresAt ?? '',
+        b.verifiedAt ?? '',
+        b.tags,
+        b.conditions,
+        b.notes,
+        b.codeHint ?? '',
+        b.archivedAt ?? '',
+        b.createdAt,
       ]),
     );
   }
   if (kind === 'refunds') {
     const rows = db.select().from(refundCases).where(eq(refundCases.userId, userId)).all();
     return toCsv(
-      ['id', 'merchant', 'order_ref', 'reference_number', 'currency', 'amount', 'received_amount', 'status', 'purchase_date', 'initiated_at', 'expected_by', 'method', 'confirmed_at', 'closed_reason', 'notes', 'created_at'],
+      [
+        'id',
+        'merchant',
+        'order_ref',
+        'reference_number',
+        'currency',
+        'amount',
+        'received_amount',
+        'status',
+        'purchase_date',
+        'initiated_at',
+        'expected_by',
+        'method',
+        'confirmed_at',
+        'closed_reason',
+        'notes',
+        'created_at',
+      ],
       rows.map((r) => [
-        r.id, r.merchant, r.orderRef, r.referenceNumber, r.currency,
+        r.id,
+        r.merchant,
+        r.orderRef,
+        r.referenceNumber,
+        r.currency,
         minorToDecimalString(r.amountMinor, r.currency),
         minorToDecimalString(r.receivedAmountMinor, r.currency),
-        r.status, r.purchaseDate ?? '', r.initiatedAt ?? '', r.expectedByDate ?? '',
-        r.method, r.confirmedAt ?? '', r.closedReason, r.notes, r.createdAt,
+        r.status,
+        r.purchaseDate ?? '',
+        r.initiatedAt ?? '',
+        r.expectedByDate ?? '',
+        r.method,
+        r.confirmedAt ?? '',
+        r.closedReason,
+        r.notes,
+        r.createdAt,
       ]),
     );
   }
   if (kind === 'recovery') {
     const rows = db.select().from(recoveryEvents).where(eq(recoveryEvents.userId, userId)).all();
     return toCsv(
-      ['id', 'kind', 'occurred_at', 'currency', 'amount', 'units', 'benefit_id', 'refund_case_id', 'note'],
+      [
+        'id',
+        'kind',
+        'occurred_at',
+        'currency',
+        'amount',
+        'units',
+        'benefit_id',
+        'refund_case_id',
+        'note',
+      ],
       rows.map((r) => [
-        r.id, r.kind, r.occurredAt, r.currency,
+        r.id,
+        r.kind,
+        r.occurredAt,
+        r.currency,
         r.amountMinor == null ? '' : minorToDecimalString(r.amountMinor, r.currency),
-        r.units ?? '', r.benefitId ?? '', r.refundCaseId ?? '', r.note,
+        r.units ?? '',
+        r.benefitId ?? '',
+        r.refundCaseId ?? '',
+        r.note,
       ]),
     );
   }
-  const owned = db.select({ id: benefits.id, currency: benefits.currency }).from(benefits).where(eq(benefits.userId, userId)).all();
+  const owned = db
+    .select({ id: benefits.id, currency: benefits.currency })
+    .from(benefits)
+    .where(eq(benefits.userId, userId))
+    .all();
   const byId = new Map(owned.map((o) => [o.id, o.currency]));
-  const rows = owned.flatMap((o) => db.select().from(balanceEvents).where(eq(balanceEvents.benefitId, o.id)).all());
+  const rows = owned.flatMap((o) =>
+    db.select().from(balanceEvents).where(eq(balanceEvents.benefitId, o.id)).all(),
+  );
   return toCsv(
-    ['id', 'benefit_id', 'type', 'occurred_at', 'delta', 'delta_units', 'resulting_value', 'resulting_units', 'reason'],
+    [
+      'id',
+      'benefit_id',
+      'type',
+      'occurred_at',
+      'delta',
+      'delta_units',
+      'resulting_value',
+      'resulting_units',
+      'reason',
+    ],
     rows.map((e) => {
       const cur = byId.get(e.benefitId) ?? 'INR';
       return [
-        e.id, e.benefitId, e.type, e.occurredAt,
+        e.id,
+        e.benefitId,
+        e.type,
+        e.occurredAt,
         e.deltaMinor == null ? '' : minorToDecimalString(e.deltaMinor, cur),
         e.deltaUnits ?? '',
         e.resultingValueMinor == null ? '' : minorToDecimalString(e.resultingValueMinor, cur),
-        e.resultingUnits ?? '', e.reason,
+        e.resultingUnits ?? '',
+        e.reason,
       ];
     }),
   );
@@ -179,7 +300,10 @@ export function exportCsv(userId: string, kind: CsvKind): string {
 /* -------------------------------------------------- documents archive */
 
 /** .tar.gz of every uploaded file plus the JSON manifest. */
-export async function exportDocumentsArchive(userId: string, includeCodes: boolean): Promise<Buffer> {
+export async function exportDocumentsArchive(
+  userId: string,
+  includeCodes: boolean,
+): Promise<Buffer> {
   const payload = exportJson(userId, { includeCodes });
   const entries: TarEntry[] = [
     { name: 'valueback-export.json', data: Buffer.from(JSON.stringify(payload, null, 2), 'utf8') },
@@ -188,11 +312,17 @@ export async function exportDocumentsArchive(userId: string, includeCodes: boole
   const docs = db.select().from(documents).where(eq(documents.userId, userId)).all();
   for (const d of docs) {
     try {
-      entries.push({ name: `documents/${d.id}-${safeName(d.filename)}`, data: await readDocumentBytes(d) });
+      entries.push({
+        name: `documents/${d.id}-${safeName(d.filename)}`,
+        data: await readDocumentBytes(d),
+      });
     } catch {
       entries.push({
         name: `documents/${d.id}-MISSING.txt`,
-        data: Buffer.from(`The stored file for document ${d.id} (${d.filename}) could not be read.\n`, 'utf8'),
+        data: Buffer.from(
+          `The stored file for document ${d.id} (${d.filename}) could not be read.\n`,
+          'utf8',
+        ),
       });
     }
   }
@@ -209,11 +339,11 @@ function archiveReadme(includeCodes: boolean): string {
     'documents/             — every file you uploaded, named <document id>-<original name>.',
     '',
     includeCodes
-      ? 'WARNING: this export CONTAINS YOUR REDEMPTION CODES IN PLAIN TEXT. Anyone who'
-        + '\nopens it can spend those gift cards and vouchers. Store it encrypted and delete'
-        + '\nit when you no longer need it.'
-      : 'Redemption codes are NOT included in this export. Only the masked hint (for'
-        + '\nexample ****4321) appears. Re-export with "include codes" if you need them.',
+      ? 'WARNING: this export CONTAINS YOUR REDEMPTION CODES IN PLAIN TEXT. Anyone who' +
+        '\nopens it can spend those gift cards and vouchers. Store it encrypted and delete' +
+        '\nit when you no longer need it.'
+      : 'Redemption codes are NOT included in this export. Only the masked hint (for' +
+        '\nexample ****4321) appears. Re-export with "include codes" if you need them.',
     '',
     'This file was produced locally by your own copy of ValueBack. Nothing was uploaded.',
     '',
@@ -239,7 +369,11 @@ export function importBenefits(userId: string, raw: unknown, opts: ImportOptions
   const report: ImportReport = { created: 0, skippedDuplicates: [], errors: [] };
   const list = extractBenefitList(raw);
   if (!list) {
-    report.errors.push({ index: 0, title: '', problem: 'The file is not a ValueBack export and has no "benefits" array.' });
+    report.errors.push({
+      index: 0,
+      title: '',
+      problem: 'The file is not a ValueBack export and has no "benefits" array.',
+    });
     return report;
   }
 
@@ -249,7 +383,8 @@ export function importBenefits(userId: string, raw: unknown, opts: ImportOptions
     try {
       if (!title) throw new Error('A title is required.');
       const category = String(row.category ?? 'other') as BenefitCategory;
-      if (!BENEFIT_CATEGORIES.includes(category)) throw new Error(`Unknown category "${String(row.category)}".`);
+      if (!BENEFIT_CATEGORIES.includes(category))
+        throw new Error(`Unknown category "${String(row.category)}".`);
       const currency = String(row.currency ?? 'INR').toUpperCase();
       if (!isSupportedCurrency(currency)) throw new Error(`Unsupported currency "${currency}".`);
 
@@ -277,7 +412,11 @@ export function importBenefits(userId: string, raw: unknown, opts: ImportOptions
       };
       const dupes = findBenefitDuplicates(userId, candidate, 1);
       if (dupes.length && dupes[0]!.strength === 'strong' && opts.onDuplicate === 'skip') {
-        report.skippedDuplicates.push({ title, existingId: dupes[0]!.record.id, signals: dupes[0]!.signals });
+        report.skippedDuplicates.push({
+          title,
+          existingId: dupes[0]!.record.id,
+          signals: dupes[0]!.signals,
+        });
         return;
       }
 
@@ -297,17 +436,25 @@ export function importBenefits(userId: string, raw: unknown, opts: ImportOptions
         conditions: String(row.conditions ?? '').slice(0, 2000),
         notes: String(row.notes ?? '').slice(0, 2000),
         tags: Array.isArray(row.tags) ? row.tags.map(String).slice(0, 12) : [],
-        code: typeof row.redemptionCode === 'string' && row.redemptionCode ? row.redemptionCode : null,
+        code:
+          typeof row.redemptionCode === 'string' && row.redemptionCode ? row.redemptionCode : null,
         evidence: 'user_entered',
         reminderOffsets: opts.reminderOffsets,
       });
       report.created += 1;
     } catch (err) {
-      report.errors.push({ index, title, problem: err instanceof Error ? err.message : 'Unknown problem.' });
+      report.errors.push({
+        index,
+        title,
+        problem: err instanceof Error ? err.message : 'Unknown problem.',
+      });
     }
   });
 
-  audit(userId, 'import.benefits', 'user', userId, { created: report.created, errors: report.errors.length });
+  audit(userId, 'import.benefits', 'user', userId, {
+    created: report.created,
+    errors: report.errors.length,
+  });
   return report;
 }
 
@@ -326,7 +473,8 @@ function str(v: unknown): string | null {
 function readInt(v: unknown): number | null {
   if (v == null || v === '') return null;
   const n = Number(v);
-  if (!Number.isInteger(n) || n < 0) throw new Error('Units must be a whole number of zero or more.');
+  if (!Number.isInteger(n) || n < 0)
+    throw new Error('Units must be a whole number of zero or more.');
   return n;
 }
 
@@ -334,7 +482,8 @@ function readInt(v: unknown): number | null {
 function readMinor(v: unknown, currency: string): number | null {
   if (v == null || v === '') return null;
   if (typeof v === 'number') {
-    if (!Number.isInteger(v) || v < 0) throw new Error('Amounts must be whole minor units (for example 250000 for 2500.00).');
+    if (!Number.isInteger(v) || v < 0)
+      throw new Error('Amounts must be whole minor units (for example 250000 for 2500.00).');
     return v;
   }
   const parsed = parseMoneyToMinor(String(v), currency);

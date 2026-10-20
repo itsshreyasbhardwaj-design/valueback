@@ -74,7 +74,8 @@ export default function HowItWorksPage() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <h1 className="text-3xl font-semibold">How ValueBack works</h1>
       <p className="mt-3 text-[var(--text-muted)]">
-        Six steps, in order. The product is built so that each one can be checked by the person using it.
+        Six steps, in order. The product is built so that each one can be checked by the person
+        using it.
       </p>
 
       <ol className="mt-10 space-y-5">
@@ -82,10 +83,14 @@ export default function HowItWorksPage() {
           <li key={s.n}>
             <Card className="p-5 sm:p-6">
               <div className="flex items-baseline gap-3">
-                <span className="nums text-sm font-bold tracking-widest text-[var(--accent)]">{s.n}</span>
+                <span className="nums text-sm font-bold tracking-widest text-[var(--accent)]">
+                  {s.n}
+                </span>
                 <h2 className="text-lg font-semibold">{s.title}</h2>
               </div>
-              <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-[var(--text-muted)]">{s.body}</p>
+              <p className="mt-2.5 text-[0.9375rem] leading-relaxed text-[var(--text-muted)]">
+                {s.body}
+              </p>
               <ul className="mt-3 space-y-1.5 border-l-2 border-[var(--border)] pl-4 text-sm text-[var(--text-muted)]">
                 {s.detail.map((d) => (
                   <li key={d}>{d}</li>

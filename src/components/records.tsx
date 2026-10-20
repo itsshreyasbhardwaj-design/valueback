@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { AlertTriangle, CalendarClock, ShieldCheck, Tag } from 'lucide-react';
 import type { benefits, refundCases } from '@/lib/db/schema';
-import { CATEGORY_LABELS, STATUS_LABELS, STATUS_TONES, date as fmtDate, money, parseTags } from '@/lib/format';
+import {
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  STATUS_TONES,
+  date as fmtDate,
+  money,
+  parseTags,
+} from '@/lib/format';
 import { daysBetween } from '@/lib/dates';
 import { evidenceLabel, priorityBand, type Priority } from '@/lib/priority';
 import { refundStatusLabel } from '@/lib/refunds';
@@ -33,7 +40,8 @@ export function ExpiryHint({
   today: string;
   prefs: Pick<DisplayPrefs, 'dateFormat'>;
 }) {
-  if (!expiresAt) return <span className="text-xs text-[var(--text-faint)]">No expiry recorded</span>;
+  if (!expiresAt)
+    return <span className="text-xs text-[var(--text-faint)]">No expiry recorded</span>;
   const days = daysBetween(today, expiresAt);
   const tone = days < 0 ? 'danger' : days <= 7 ? 'danger' : days <= 30 ? 'warning' : 'neutral';
   const text =
@@ -77,7 +85,9 @@ export function BenefitRow({
           </div>
           <div className="text-right">
             {benefit.currentValueMinor != null ? (
-              <p className="nums font-semibold">{money(benefit.currentValueMinor, benefit.currency)}</p>
+              <p className="nums font-semibold">
+                {money(benefit.currentValueMinor, benefit.currency)}
+              </p>
             ) : null}
             {benefit.currentUnits != null ? (
               <p className="nums text-[0.8125rem] text-[var(--text-muted)]">
@@ -141,7 +151,15 @@ export function RefundRow({
           </div>
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <Badge tone={refundCase.status === 'received_confirmed' ? 'positive' : refundCase.status === 'disputed' ? 'danger' : 'neutral'}>
+          <Badge
+            tone={
+              refundCase.status === 'received_confirmed'
+                ? 'positive'
+                : refundCase.status === 'disputed'
+                  ? 'danger'
+                  : 'neutral'
+            }
+          >
             {refundStatusLabel(refundCase.status)}
           </Badge>
           {overdue ? (
@@ -150,7 +168,8 @@ export function RefundRow({
             </Badge>
           ) : refundCase.expectedByDate ? (
             <Badge tone="neutral">
-              <CalendarClock size={11} aria-hidden /> Expected by {fmtDate(refundCase.expectedByDate, prefs)}
+              <CalendarClock size={11} aria-hidden /> Expected by{' '}
+              {fmtDate(refundCase.expectedByDate, prefs)}
             </Badge>
           ) : null}
           {shared ? <Badge tone="info">Shared in {shared.householdName}</Badge> : null}
@@ -176,7 +195,10 @@ export function AttentionItem({
   const band = priorityBand(priority.score);
   return (
     <li>
-      <Link href={href} className="block px-4 py-3 transition-colors hover:bg-[var(--bg-subtle)] sm:px-5">
+      <Link
+        href={href}
+        className="block px-4 py-3 transition-colors hover:bg-[var(--bg-subtle)] sm:px-5"
+      >
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="min-w-0">
             <p className="truncate font-medium">{title}</p>
@@ -184,7 +206,11 @@ export function AttentionItem({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <span className="nums font-semibold">{amount}</span>
-            <Badge tone={band.tone === 'urgent' ? 'danger' : band.tone === 'warning' ? 'warning' : 'neutral'}>
+            <Badge
+              tone={
+                band.tone === 'urgent' ? 'danger' : band.tone === 'warning' ? 'warning' : 'neutral'
+              }
+            >
               {band.label}
             </Badge>
           </div>

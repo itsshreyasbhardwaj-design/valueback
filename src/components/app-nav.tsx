@@ -3,10 +3,22 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BarChart3, Bell, FileText, Home, LogOut, Plus, RotateCcw, Search, Settings, Users, Wallet, X, Menu,
+  BarChart3,
+  Bell,
+  FileText,
+  Home,
+  LogOut,
+  Plus,
+  RotateCcw,
+  Search,
+  Settings,
+  Users,
+  Wallet,
+  X,
+  Menu,
 } from 'lucide-react';
 import { signOutAction } from '@/app/(auth)/actions';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Logo } from './brand';
 import { ThemeToggle } from './theme-toggle';
 import { cn } from './ui';
@@ -30,7 +42,15 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ unread, userName, plan }: { unread: number; userName: string; plan: string }) {
+export function Sidebar({
+  unread,
+  userName,
+  plan,
+}: {
+  unread: number;
+  userName: string;
+  plan: string;
+}) {
   const pathname = usePathname();
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
@@ -87,8 +107,11 @@ export function Sidebar({ unread, userName, plan }: { unread: number; userName: 
 
 export function MobileTopBar({ unread }: { unread: number }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [pathname]);
+  // Storing which route the menu was opened for closes it on navigation
+  // without an effect: a new pathname simply stops matching.
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const open = openFor === pathname;
+  const setOpen = (next: boolean) => setOpenFor(next ? pathname : null);
 
   return (
     <>
@@ -112,12 +135,15 @@ export function MobileTopBar({ unread }: { unread: number }) {
           >
             <Bell size={18} aria-hidden />
             {unread > 0 ? (
-              <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--warn)]" aria-hidden />
+              <span
+                className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--warn)]"
+                aria-hidden
+              />
             ) : null}
           </Link>
           <button
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen(!open)}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -144,7 +170,9 @@ export function MobileTopBar({ unread }: { unread: number }) {
                 aria-current={active ? 'page' : undefined}
                 className={cn(
                   'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm',
-                  active ? 'bg-[var(--accent-soft)] font-semibold text-[var(--accent-soft-text)]' : 'text-[var(--text-muted)]',
+                  active
+                    ? 'bg-[var(--accent-soft)] font-semibold text-[var(--accent-soft-text)]'
+                    : 'text-[var(--text-muted)]',
                 )}
               >
                 <Icon size={16} aria-hidden />

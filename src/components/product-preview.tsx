@@ -11,10 +11,25 @@ import { Badge } from './ui';
  */
 const EXAMPLE = {
   metrics: [
-    { label: 'Available, as reported', value: '₹18,400', note: 'across 7 records', tone: 'neutral' as const },
+    {
+      label: 'Available, as reported',
+      value: '₹18,400',
+      note: 'across 7 records',
+      tone: 'neutral' as const,
+    },
     { label: 'Pending refunds', value: '₹4,299', note: '2 cases open', tone: 'neutral' as const },
-    { label: 'Expiring in 30 days', value: '₹5,000', note: 'slice of the first figure', tone: 'warning' as const },
-    { label: 'Confirmed recovered', value: '₹11,750', note: 'you confirmed each one', tone: 'positive' as const },
+    {
+      label: 'Expiring in 30 days',
+      value: '₹5,000',
+      note: 'slice of the first figure',
+      tone: 'warning' as const,
+    },
+    {
+      label: 'Confirmed recovered',
+      value: '₹11,750',
+      note: 'you confirmed each one',
+      tone: 'positive' as const,
+    },
   ],
   attention: [
     {
@@ -26,7 +41,8 @@ const EXAMPLE = {
     },
     {
       title: 'Refund from Zentra Electronics',
-      reason: 'The refund window you recorded ended 4 days ago and you have not confirmed receiving the money.',
+      reason:
+        'The refund window you recorded ended 4 days ago and you have not confirmed receiving the money.',
       amount: '₹3,799',
       tone: 'danger' as const,
       tag: 'Overdue',
@@ -40,9 +56,24 @@ const EXAMPLE = {
     },
   ],
   activity: [
-    { title: 'Refund received from Marigold Travel', amount: '+₹6,450', when: '12 Oct', kind: 'Refund confirmed' },
-    { title: 'Used gift card at Bluebird Books', amount: '+₹1,800', when: '28 Sep', kind: 'Credit recorded as used' },
-    { title: 'Cashback credited by card issuer', amount: '+₹3,500', when: '14 Sep', kind: 'Credit recorded as used' },
+    {
+      title: 'Refund received from Marigold Travel',
+      amount: '+₹6,450',
+      when: '12 Oct',
+      kind: 'Refund confirmed',
+    },
+    {
+      title: 'Used gift card at Bluebird Books',
+      amount: '+₹1,800',
+      when: '28 Sep',
+      kind: 'Credit recorded as used',
+    },
+    {
+      title: 'Cashback credited by card issuer',
+      amount: '+₹3,500',
+      when: '14 Sep',
+      kind: 'Credit recorded as used',
+    },
   ],
 };
 
@@ -82,18 +113,29 @@ export function ProductPreview() {
             );
           })}
         </div>
-        <Badge tone="info" className="shrink-0">Example data</Badge>
+        <Badge tone="info" className="shrink-0">
+          Example data
+        </Badge>
       </div>
 
       <div className="p-3 sm:p-4">
         {tab === 'overview' ? (
-          <div role="tabpanel" id="preview-panel-overview" aria-labelledby="preview-tab-overview" className="grid gap-3 sm:grid-cols-2">
+          <div
+            role="tabpanel"
+            id="preview-panel-overview"
+            aria-labelledby="preview-tab-overview"
+            className="grid gap-3 sm:grid-cols-2"
+          >
             {EXAMPLE.metrics.map((m) => (
               <div key={m.label} className="rounded-lg border border-[var(--border)] p-3">
                 <p className="text-[0.75rem] font-medium text-[var(--text-muted)]">{m.label}</p>
                 <p
                   className={`nums mt-1 text-xl font-semibold ${
-                    m.tone === 'positive' ? 'text-[var(--accent)]' : m.tone === 'warning' ? 'text-[var(--warn)]' : ''
+                    m.tone === 'positive'
+                      ? 'text-[var(--accent)]'
+                      : m.tone === 'warning'
+                        ? 'text-[var(--warn)]'
+                        : ''
                   }`}
                 >
                   {m.value}
@@ -105,7 +147,12 @@ export function ProductPreview() {
         ) : null}
 
         {tab === 'attention' ? (
-          <ul role="tabpanel" id="preview-panel-attention" aria-labelledby="preview-tab-attention" className="space-y-2">
+          <ul
+            role="tabpanel"
+            id="preview-panel-attention"
+            aria-labelledby="preview-tab-attention"
+            className="space-y-2"
+          >
             {EXAMPLE.attention.map((a) => (
               <li key={a.title} className="rounded-lg border border-[var(--border)] p-3">
                 <div className="flex items-start justify-between gap-3">
@@ -120,16 +167,26 @@ export function ProductPreview() {
         ) : null}
 
         {tab === 'activity' ? (
-          <ul role="tabpanel" id="preview-panel-activity" aria-labelledby="preview-tab-activity" className="space-y-2">
+          <ul
+            role="tabpanel"
+            id="preview-panel-activity"
+            aria-labelledby="preview-tab-activity"
+            className="space-y-2"
+          >
             {EXAMPLE.activity.map((a) => (
-              <li key={a.title} className="flex items-start justify-between gap-3 rounded-lg border border-[var(--border)] p-3">
+              <li
+                key={a.title}
+                className="flex items-start justify-between gap-3 rounded-lg border border-[var(--border)] p-3"
+              >
                 <div>
                   <p className="text-sm font-semibold">{a.title}</p>
                   <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--text-faint)]">
                     <Clock size={12} aria-hidden /> {a.when} · {a.kind}
                   </p>
                 </div>
-                <p className="nums shrink-0 text-sm font-semibold text-[var(--accent)]">{a.amount}</p>
+                <p className="nums shrink-0 text-sm font-semibold text-[var(--accent)]">
+                  {a.amount}
+                </p>
               </li>
             ))}
           </ul>

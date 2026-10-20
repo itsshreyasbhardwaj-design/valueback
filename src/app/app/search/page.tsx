@@ -37,9 +37,20 @@ export default async function SearchPage({
             <label className="vb-label" htmlFor="q">
               Search your records
             </label>
-            <input id="q" name="q" type="search" defaultValue={q} autoFocus className="vb-input" placeholder="e.g. Lifestyle, 4432, yoga" />
+            <input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={q}
+              autoFocus
+              className="vb-input"
+              placeholder="e.g. Lifestyle, 4432, yoga"
+            />
           </div>
-          <button type="submit" className="min-h-[2.5rem] rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-contrast)]">
+          <button
+            type="submit"
+            className="min-h-[2.5rem] rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-contrast)]"
+          >
             Search
           </button>
         </form>
@@ -100,15 +111,29 @@ export default async function SearchPage({
 
           {results.documents.length > 0 ? (
             <Card>
-              <CardHeader title={`Documents (${results.documents.length})`} description="Matched on the filename or the text read from the file." />
+              <CardHeader
+                title={`Documents (${results.documents.length})`}
+                description="Matched on the filename or the text read from the file."
+              />
               <ul className="divide-y divide-[var(--border)]">
                 {results.documents.map((d) => (
                   <li key={d.id}>
-                    <Link href={`/app/documents/${d.id}`} className="flex gap-3 px-4 py-3 hover:bg-[var(--bg-subtle)] sm:px-5">
-                      <FileText size={15} className="mt-0.5 shrink-0 text-[var(--text-faint)]" aria-hidden />
+                    <Link
+                      href={`/app/documents/${d.id}`}
+                      className="flex gap-3 px-4 py-3 hover:bg-[var(--bg-subtle)] sm:px-5"
+                    >
+                      <FileText
+                        size={15}
+                        className="mt-0.5 shrink-0 text-[var(--text-faint)]"
+                        aria-hidden
+                      />
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{d.filename}</p>
-                        {d.excerpt ? <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{d.excerpt}</p> : null}
+                        {d.excerpt ? (
+                          <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">
+                            {d.excerpt}
+                          </p>
+                        ) : null}
                       </div>
                     </Link>
                   </li>

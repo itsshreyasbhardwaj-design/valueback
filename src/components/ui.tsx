@@ -15,9 +15,11 @@ const BUTTON_BASE =
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-[var(--accent)] text-[var(--accent-contrast)] hover:opacity-90',
-  secondary: 'bg-[var(--surface)] text-[var(--text)] border border-[var(--border-strong)] hover:bg-[var(--bg-subtle)]',
+  secondary:
+    'bg-[var(--surface)] text-[var(--text)] border border-[var(--border-strong)] hover:bg-[var(--bg-subtle)]',
   ghost: 'text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text)]',
-  danger: 'bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger)]/30 hover:opacity-90',
+  danger:
+    'bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger)]/30 hover:opacity-90',
 };
 
 const SIZES: Record<Size, string> = {
@@ -31,7 +33,9 @@ export function Button({
   className,
   ...props
 }: ComponentProps<'button'> & { variant?: Variant; size?: Size }) {
-  return <button className={cn(BUTTON_BASE, VARIANTS[variant], SIZES[size], className)} {...props} />;
+  return (
+    <button className={cn(BUTTON_BASE, VARIANTS[variant], SIZES[size], className)} {...props} />
+  );
 }
 
 export function LinkButton({
@@ -64,7 +68,9 @@ export function CardHeader({
     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--border)] px-4 py-3 sm:px-5">
       <div className="min-w-0">
         <As className="text-[0.9375rem] font-semibold">{title}</As>
-        {description ? <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{description}</p> : null}
+        {description ? (
+          <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{description}</p>
+        ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -133,7 +139,11 @@ export function Field({
     <div className={className}>
       <label className="vb-label" htmlFor={name}>
         {label}
-        {required ? <span className="text-[var(--danger)]"> *</span> : <span className="font-normal text-[var(--text-faint)]"> (optional)</span>}
+        {required ? (
+          <span className="text-[var(--danger)]"> *</span>
+        ) : (
+          <span className="font-normal text-[var(--text-faint)]"> (optional)</span>
+        )}
       </label>
       {children}
       {hint ? (
@@ -166,7 +176,11 @@ export function Textarea({ className, ...props }: ComponentProps<'textarea'>) {
   return <textarea className={cn('vb-input min-h-[5rem] py-2', className)} {...props} />;
 }
 
-export function Checkbox({ label, hint, ...props }: ComponentProps<'input'> & { label: string; hint?: string }) {
+export function Checkbox({
+  label,
+  hint,
+  ...props
+}: ComponentProps<'input'> & { label: string; hint?: string }) {
   return (
     <label className="flex cursor-pointer items-start gap-2.5 py-1">
       <input
@@ -208,7 +222,11 @@ export function Alert({
       className={cn('rounded-lg border px-3.5 py-3 text-sm', TONES[tone], border[tone], className)}
     >
       {title ? <p className="font-semibold">{title}</p> : null}
-      {children ? <div className={cn(title ? 'mt-1' : undefined, 'text-[0.8125rem] leading-relaxed')}>{children}</div> : null}
+      {children ? (
+        <div className={cn(title ? 'mt-1' : undefined, 'text-[0.8125rem] leading-relaxed')}>
+          {children}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -266,7 +284,9 @@ export function PageHeader({
     <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
         <h1 className="text-xl font-semibold sm:text-2xl">{title}</h1>
-        {description ? <p className="mt-1 max-w-2xl text-sm text-[var(--text-muted)]">{description}</p> : null}
+        {description ? (
+          <p className="mt-1 max-w-2xl text-sm text-[var(--text-muted)]">{description}</p>
+        ) : null}
       </div>
       {action ? <div className="flex gap-2">{action}</div> : null}
     </header>

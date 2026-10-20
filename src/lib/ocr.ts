@@ -10,7 +10,9 @@ import { resolve } from 'node:path';
  * `npm run fetch:ocr`. Until then image OCR reports itself as unavailable and
  * the upload falls back to manual entry — it never pretends to have read text.
  */
-export const OCR_DATA_DIR = resolve(/* turbopackIgnore: true */ process.env.OCR_DATA_DIR ?? './ocr-data');
+export const OCR_DATA_DIR = resolve(
+  /* turbopackIgnore: true */ process.env.OCR_DATA_DIR ?? './ocr-data',
+);
 const LANG = 'eng';
 
 export function ocrAvailable(): boolean {
@@ -52,9 +54,10 @@ export async function ocrImage(data: Buffer, timeoutMs = 60_000): Promise<OcrRes
   } catch (err) {
     return {
       ok: false,
-      error: err instanceof Error && err.message === 'OCR timed out'
-        ? 'Reading this image took too long and was stopped. Try a smaller or sharper image, or enter the details by hand.'
-        : 'This image could not be read automatically. Enter the details by hand.',
+      error:
+        err instanceof Error && err.message === 'OCR timed out'
+          ? 'Reading this image took too long and was stopped. Try a smaller or sharper image, or enter the details by hand.'
+          : 'This image could not be read automatically. Enter the details by hand.',
     };
   } finally {
     await worker?.terminate().catch(() => {});

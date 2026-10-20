@@ -11,7 +11,14 @@ import { visibleBenefitWhere, visibleRefundWhere } from './authz';
 export type SearchResults = {
   benefits: Array<typeof benefits.$inferSelect>;
   refunds: Array<typeof refundCases.$inferSelect>;
-  documents: Array<{ id: string; filename: string; createdAt: string; benefitId: string | null; refundCaseId: string | null; excerpt: string }>;
+  documents: Array<{
+    id: string;
+    filename: string;
+    createdAt: string;
+    benefitId: string | null;
+    refundCaseId: string | null;
+    excerpt: string;
+  }>;
   total: number;
 };
 
@@ -69,7 +76,10 @@ export function search(
       .where(
         and(
           eq(documents.userId, userId),
-          or(like(sql`lower(${documents.filename})`, term), like(sql`lower(${documents.extractedText})`, term)),
+          or(
+            like(sql`lower(${documents.filename})`, term),
+            like(sql`lower(${documents.extractedText})`, term),
+          ),
         ),
       )
       .orderBy(desc(documents.createdAt))
@@ -97,5 +107,8 @@ function excerptAround(text: string, q: string, span = 120): string {
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   if (i === -1) return text.slice(0, span).replace(/\s+/g, ' ').trim();
   const start = Math.max(0, i - span / 3);
-  return `${start > 0 ? '…' : ''}${text.slice(start, start + span).replace(/\s+/g, ' ').trim()}…`;
+  return `${start > 0 ? '…' : ''}${text
+    .slice(start, start + span)
+    .replace(/\s+/g, ' ')
+    .trim()}…`;
 }

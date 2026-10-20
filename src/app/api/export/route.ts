@@ -4,7 +4,13 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { assertSameOrigin, getSessionUser } from '@/lib/auth';
 import { verifyPassword } from '@/lib/crypto';
-import { exportCsv, exportDocumentsArchive, exportFilename, exportJson, type CsvKind } from '@/lib/exportdata';
+import {
+  exportCsv,
+  exportDocumentsArchive,
+  exportFilename,
+  exportJson,
+  type CsvKind,
+} from '@/lib/exportdata';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 
 /**
@@ -22,11 +28,20 @@ export async function POST(req: Request) {
   const includeCodes = fd.get('includeCodes') === 'on';
 
   if (includeCodes) {
-    const limit = rateLimit(`export-codes:${user.id}`, LIMITS.passwordChange.limit, LIMITS.passwordChange.windowMs);
-    if (!limit.ok) return new NextResponse('Too many attempts. Try again shortly.', { status: 429 });
+    const limit = rateLimit(
+      `export-codes:${user.id}`,
+      LIMITS.passwordChange.limit,
+      LIMITS.passwordChange.windowMs,
+    );
+    if (!limit.ok)
+      return new NextResponse('Too many attempts. Try again shortly.', { status: 429 });
 
     const password = String(fd.get('password') ?? '');
-    const row = db.select({ hash: users.passwordHash }).from(users).where(eq(users.id, user.id)).get();
+    const row = db
+      .select({ hash: users.passwordHash })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .get();
     if (!row || !password || !verifyPassword(password, row.hash)) {
       return NextResponse.redirect(new URL('/app/settings/data?error=password', req.url), 303);
     }

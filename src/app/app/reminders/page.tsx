@@ -10,7 +10,13 @@ import { addDays, daysBetween, todayIso } from '@/lib/dates';
 import { date as fmtDate, relativeDays, timestamp } from '@/lib/format';
 import { Alert, Badge, Card, CardHeader, EmptyState, PageHeader } from '@/components/ui';
 import { SubmitButton } from '@/components/form';
-import { BrowserNotifications, MarkReadButton, NewReminderPanel, ReminderActions, RunSchedulerPanel } from './panels';
+import {
+  BrowserNotifications,
+  MarkReadButton,
+  NewReminderPanel,
+  ReminderActions,
+  RunSchedulerPanel,
+} from './panels';
 
 export const metadata: Metadata = { title: 'Reminders' };
 
@@ -62,7 +68,10 @@ export default async function RemindersPage() {
   const section = (title: string, items: typeof all, tone: 'danger' | 'warning' | 'neutral') =>
     items.length > 0 ? (
       <Card key={title}>
-        <CardHeader title={title} description={`${items.length} ${items.length === 1 ? 'reminder' : 'reminders'}`} />
+        <CardHeader
+          title={title}
+          description={`${items.length} ${items.length === 1 ? 'reminder' : 'reminders'}`}
+        />
         <ul className="divide-y divide-[var(--border)]">
           {items.map((r) => (
             <li key={r.id} className="px-4 py-3 sm:px-5">
@@ -87,7 +96,9 @@ export default async function RemindersPage() {
                     {r.status === 'snoozed' ? ' · snoozed' : ''}
                   </p>
                 </div>
-                <Badge tone={tone}>{r.status === 'snoozed' ? 'Snoozed' : KIND_LABELS[r.kind] ?? r.kind}</Badge>
+                <Badge tone={tone}>
+                  {r.status === 'snoozed' ? 'Snoozed' : (KIND_LABELS[r.kind] ?? r.kind)}
+                </Badge>
               </div>
               <div className="mt-2">
                 <ReminderActions reminderId={r.id} dueAt={r.dueAt} />
@@ -106,9 +117,9 @@ export default async function RemindersPage() {
       />
 
       <Alert tone="neutral" className="mb-5" title="How delivery actually works">
-        Reminders are turned into notifications while ValueBack is running, or when you run the scheduler
-        command. Nothing is delivered to a phone or an inbox: there is no push service and no email
-        provider in this build.
+        Reminders are turned into notifications while ValueBack is running, or when you run the
+        scheduler command. Nothing is delivered to a phone or an inbox: there is no push service and
+        no email provider in this build.
       </Alert>
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -159,18 +170,35 @@ export default async function RemindersPage() {
                               {n.title}
                             </Link>
                           ) : n.refundCaseId ? (
-                            <Link href={`/app/refunds/${n.refundCaseId}`} className="hover:underline">
+                            <Link
+                              href={`/app/refunds/${n.refundCaseId}`}
+                              className="hover:underline"
+                            >
                               {n.title}
                             </Link>
                           ) : (
                             n.title
                           )}
                         </p>
-                        {n.body ? <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">{n.body}</p> : null}
-                        <p className="mt-0.5 text-xs text-[var(--text-faint)]">{timestamp(n.createdAt, prefs)}</p>
+                        {n.body ? (
+                          <p className="mt-0.5 text-[0.8125rem] text-[var(--text-muted)]">
+                            {n.body}
+                          </p>
+                        ) : null}
+                        <p className="mt-0.5 text-xs text-[var(--text-faint)]">
+                          {timestamp(n.createdAt, prefs)}
+                        </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        <Badge tone={n.severity === 'urgent' ? 'danger' : n.severity === 'warning' ? 'warning' : 'neutral'}>
+                        <Badge
+                          tone={
+                            n.severity === 'urgent'
+                              ? 'danger'
+                              : n.severity === 'warning'
+                                ? 'warning'
+                                : 'neutral'
+                          }
+                        >
                           {n.severity}
                         </Badge>
                         {!n.readAt ? <MarkReadButton notificationId={n.id} /> : null}
@@ -190,13 +218,17 @@ export default async function RemindersPage() {
           </Card>
 
           <Card>
-            <CardHeader title="Run the scheduler" description="Idempotent — running it twice does not nag you twice." />
+            <CardHeader
+              title="Run the scheduler"
+              description="Idempotent — running it twice does not nag you twice."
+            />
             <RunSchedulerPanel />
           </Card>
 
           <Card className="p-4">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <BellRing size={15} className="text-[var(--accent)]" aria-hidden /> Browser notifications
+              <BellRing size={15} className="text-[var(--accent)]" aria-hidden /> Browser
+              notifications
             </h2>
             <div className="mt-3">
               <BrowserNotifications
@@ -218,11 +250,14 @@ export default async function RemindersPage() {
           <Card className="p-4">
             <h2 className="text-sm font-semibold">Your schedule</h2>
             <p className="mt-2 text-[0.8125rem] text-[var(--text-muted)]">
-              Expiry reminders fire {user.settings.reminderOffsets.replace(/[[\]]/g, '')} days before the
-              recorded date. Refund check-ins happen {user.settings.refundCheckInDays} days after a case is
-              opened, or the day after the expected date.
+              Expiry reminders fire {user.settings.reminderOffsets.replace(/[[\]]/g, '')} days
+              before the recorded date. Refund check-ins happen {user.settings.refundCheckInDays}{' '}
+              days after a case is opened, or the day after the expected date.
             </p>
-            <Link href="/app/settings" className="mt-2 inline-block text-sm text-[var(--accent)] hover:underline">
+            <Link
+              href="/app/settings"
+              className="mt-2 inline-block text-sm text-[var(--accent)] hover:underline"
+            >
               Change the schedule
             </Link>
           </Card>
@@ -230,8 +265,11 @@ export default async function RemindersPage() {
           <Card className="p-4">
             <h2 className="text-sm font-semibold">Coming up</h2>
             <p className="mt-2 text-[0.8125rem] text-[var(--text-muted)]">
-              {all.filter((r) => daysBetween(today, r.dueAt) >= 0 && r.dueAt <= addDays(today, 7)).length} reminders
-              in the next 7 days.
+              {
+                all.filter((r) => daysBetween(today, r.dueAt) >= 0 && r.dueAt <= addDays(today, 7))
+                  .length
+              }{' '}
+              reminders in the next 7 days.
             </p>
           </Card>
         </div>

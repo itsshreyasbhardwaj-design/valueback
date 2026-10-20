@@ -49,7 +49,8 @@ export async function createRefundAction(_prev: FormState, fd: FormData): Promis
   const d = parsed.data;
 
   const amount = parseMoneyToMinor(d.amount, d.currency);
-  if (amount == null || amount <= 0) return { ok: false, errors: { amount: 'Enter the amount you expect back.' } };
+  if (amount == null || amount <= 0)
+    return { ok: false, errors: { amount: 'Enter the amount you expect back.' } };
 
   const created = createRefundCase({
     userId: user.id,
@@ -99,7 +100,8 @@ export async function updateRefundAction(_prev: FormState, fd: FormData): Promis
   if (!found.ok) return found.state;
 
   const amount = parseMoneyToMinor(d.amount, d.currency);
-  if (amount == null || amount <= 0) return { ok: false, errors: { amount: 'Enter a valid amount.' } };
+  if (amount == null || amount <= 0)
+    return { ok: false, errors: { amount: 'Enter a valid amount.' } };
 
   const result = updateRefundDetails(
     user.id,
@@ -181,7 +183,10 @@ export async function logClaimActionAction(_prev: FormState, fd: FormData): Prom
   return { ok: true, message: 'Follow-up logged on the timeline.' };
 }
 
-export async function completeClaimActionAction(_prev: FormState, fd: FormData): Promise<FormState> {
+export async function completeClaimActionAction(
+  _prev: FormState,
+  fd: FormData,
+): Promise<FormState> {
   const user = await requireUserForAction();
   const id = String(fd.get('actionId') ?? '');
   const caseId = String(fd.get('refundCaseId') ?? '');
@@ -207,8 +212,13 @@ export async function deleteRefundAction(_prev: FormState, fd: FormData): Promis
   const id = String(fd.get('id') ?? '');
   const found = guard(() => getRefundCaseFor(user.id, id, 'edit'));
   if (!found.ok) return found.state;
-  if (!found.value.access.isOwner) return { ok: false, errors: { _form: 'Only the owner can delete a case.' } };
-  if (String(fd.get('confirm') ?? '').trim().toLowerCase() !== 'delete') {
+  if (!found.value.access.isOwner)
+    return { ok: false, errors: { _form: 'Only the owner can delete a case.' } };
+  if (
+    String(fd.get('confirm') ?? '')
+      .trim()
+      .toLowerCase() !== 'delete'
+  ) {
     return { ok: false, errors: { confirm: 'Type delete to confirm.' } };
   }
   db.delete(refundCases).where(eq(refundCases.id, id)).run();

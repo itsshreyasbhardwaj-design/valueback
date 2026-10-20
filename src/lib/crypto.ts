@@ -37,7 +37,10 @@ export function verifyPassword(password: string, stored: string): boolean {
   let actual: Buffer;
   try {
     actual = scryptSync(password.normalize('NFKC'), salt, expected.length, {
-      N: Number(N), r: Number(r), p: Number(p), maxmem: SCRYPT.maxmem,
+      N: Number(N),
+      r: Number(r),
+      p: Number(p),
+      maxmem: SCRYPT.maxmem,
     });
   } catch {
     return false;
@@ -90,7 +93,9 @@ export function encryptSecret(plaintext: string): string {
   const cipher = createCipheriv('aes-256-gcm', key(), iv);
   const ct = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   const tag = cipher.getAuthTag();
-  return ['v1', iv.toString('base64url'), tag.toString('base64url'), ct.toString('base64url')].join('.');
+  return ['v1', iv.toString('base64url'), tag.toString('base64url'), ct.toString('base64url')].join(
+    '.',
+  );
 }
 
 /** Returns null when the envelope is malformed or fails authentication. */
@@ -98,11 +103,7 @@ export function decryptSecret(envelope: string): string | null {
   const parts = envelope.split('.');
   if (parts.length !== 4 || parts[0] !== 'v1') return null;
   try {
-    const decipher = createDecipheriv(
-      'aes-256-gcm',
-      key(),
-      Buffer.from(parts[1]!, 'base64url'),
-    );
+    const decipher = createDecipheriv('aes-256-gcm', key(), Buffer.from(parts[1]!, 'base64url'));
     decipher.setAuthTag(Buffer.from(parts[2]!, 'base64url'));
     return Buffer.concat([
       decipher.update(Buffer.from(parts[3]!, 'base64url')),

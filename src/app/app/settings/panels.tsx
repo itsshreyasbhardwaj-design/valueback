@@ -31,8 +31,15 @@ export type SettingsValues = {
 };
 
 const TIME_ZONES = [
-  'Asia/Kolkata', 'Asia/Dubai', 'Asia/Singapore', 'Europe/London', 'Europe/Berlin',
-  'America/New_York', 'America/Los_Angeles', 'Australia/Sydney', 'UTC',
+  'Asia/Kolkata',
+  'Asia/Dubai',
+  'Asia/Singapore',
+  'Europe/London',
+  'Europe/Berlin',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Australia/Sydney',
+  'UTC',
 ];
 
 export function SettingsForm({ initial }: { initial: SettingsValues }) {
@@ -45,11 +52,20 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
         <Field label="Your name" name="name" error={state.errors?.name}>
           <Input id="name" name="name" defaultValue={initial.name} maxLength={80} />
         </Field>
-        <Field label="Account email" name="email" hint="Used to sign in. Changing it is not supported in this build.">
+        <Field
+          label="Account email"
+          name="email"
+          hint="Used to sign in. Changing it is not supported in this build."
+        >
           <Input id="email" name="email" value={initial.email} readOnly disabled />
         </Field>
 
-        <Field label="Preferred currency" name="currency" error={state.errors?.currency} hint="Used for new records and as the main currency on the dashboard.">
+        <Field
+          label="Preferred currency"
+          name="currency"
+          error={state.errors?.currency}
+          hint="Used for new records and as the main currency on the dashboard."
+        >
           <Select id="currency" name="currency" defaultValue={initial.currency}>
             {SUPPORTED_CURRENCIES.map((c) => (
               <option key={c} value={c}>
@@ -65,7 +81,12 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
             <option value="yyyy-MM-dd">2026-12-31</option>
           </Select>
         </Field>
-        <Field label="Time zone" name="timeZone" error={state.errors?.timeZone} hint="Decides what “today” means for deadlines.">
+        <Field
+          label="Time zone"
+          name="timeZone"
+          error={state.errors?.timeZone}
+          hint="Decides what “today” means for deadlines."
+        >
           <Select id="timeZone" name="timeZone" defaultValue={initial.timeZone}>
             {TIME_ZONES.map((z) => (
               <option key={z} value={z}>
@@ -88,7 +109,12 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
           error={state.errors?.reminderOffsets}
           hint="Days before an expiry date, separated by commas."
         >
-          <Input id="reminderOffsets" name="reminderOffsets" defaultValue={initial.reminderOffsets} className="nums" />
+          <Input
+            id="reminderOffsets"
+            name="reminderOffsets"
+            defaultValue={initial.reminderOffsets}
+            className="nums"
+          />
         </Field>
         <Field
           label="Refund check-in after"
@@ -96,12 +122,24 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
           error={state.errors?.refundCheckInDays}
           hint="Days after opening a case, when no expected date is known."
         >
-          <Input id="refundCheckInDays" name="refundCheckInDays" type="number" min={1} max={90} defaultValue={initial.refundCheckInDays} className="nums" />
+          <Input
+            id="refundCheckInDays"
+            name="refundCheckInDays"
+            type="number"
+            min={1}
+            max={90}
+            defaultValue={initial.refundCheckInDays}
+            className="nums"
+          />
         </Field>
 
         <div className="sm:col-span-2">
           <p className="vb-label">Notifications and privacy</p>
-          <Checkbox name="notifyInApp" defaultChecked={initial.notifyInApp} label="Show reminders in the in-app notification centre" />
+          <Checkbox
+            name="notifyInApp"
+            defaultChecked={initial.notifyInApp}
+            label="Show reminders in the in-app notification centre"
+          />
           <Checkbox
             name="notifyBrowser"
             defaultChecked={initial.notifyBrowser}
@@ -129,14 +167,49 @@ export function PasswordForm() {
   return (
     <form action={action} className="space-y-4 p-4 sm:p-5" noValidate>
       <FormMessage state={state} />
-      <Field label="Current password" name="currentPassword" required error={state.errors?.currentPassword}>
-        <Input id="currentPassword" name="currentPassword" type="password" autoComplete="current-password" required />
+      <Field
+        label="Current password"
+        name="currentPassword"
+        required
+        error={state.errors?.currentPassword}
+      >
+        <Input
+          id="currentPassword"
+          name="currentPassword"
+          type="password"
+          autoComplete="current-password"
+          required
+        />
       </Field>
-      <Field label="New password" name="newPassword" required error={state.errors?.newPassword} hint="At least 10 characters.">
-        <Input id="newPassword" name="newPassword" type="password" autoComplete="new-password" minLength={10} required />
+      <Field
+        label="New password"
+        name="newPassword"
+        required
+        error={state.errors?.newPassword}
+        hint="At least 10 characters."
+      >
+        <Input
+          id="newPassword"
+          name="newPassword"
+          type="password"
+          autoComplete="new-password"
+          minLength={10}
+          required
+        />
       </Field>
-      <Field label="Confirm new password" name="confirmPassword" required error={state.errors?.confirmPassword}>
-        <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+      <Field
+        label="Confirm new password"
+        name="confirmPassword"
+        required
+        error={state.errors?.confirmPassword}
+      >
+        <Input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          required
+        />
       </Field>
       <SubmitButton pendingLabel="Changing…">Change password</SubmitButton>
     </form>
@@ -150,9 +223,12 @@ export function RecoveryCodesPanel({ existing }: { existing: number }) {
 
   return (
     <div className="space-y-4 p-4 sm:p-5">
-      <Alert tone={existing > 0 ? 'neutral' : 'warning'} title={existing > 0 ? `${existing} unused codes exist` : 'You have no recovery codes'}>
-        There is no password-reset email in this build. A recovery code is the only way back into this
-        account if you forget the password. Generating a new set replaces any existing codes.
+      <Alert
+        tone={existing > 0 ? 'neutral' : 'warning'}
+        title={existing > 0 ? `${existing} unused codes exist` : 'You have no recovery codes'}
+      >
+        There is no password-reset email in this build. A recovery code is the only way back into
+        this account if you forget the password. Generating a new set replaces any existing codes.
       </Alert>
 
       {codes ? (
@@ -177,16 +253,27 @@ export function RecoveryCodesPanel({ existing }: { existing: number }) {
             <Copy size={13} aria-hidden /> {copied ? 'Copied' : 'Copy all codes'}
           </Button>
           <p className="mt-2 text-xs">
-            Only a hash of each code is stored, so nobody — including whoever runs this installation —
-            can read them back out of the database.
+            Only a hash of each code is stored, so nobody — including whoever runs this installation
+            — can read them back out of the database.
           </p>
         </Alert>
       ) : null}
 
       <form action={action} className="space-y-3" noValidate>
         <FormMessage state={state} />
-        <Field label="Confirm your password" name="password" required error={state.errors?.password}>
-          <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <Field
+          label="Confirm your password"
+          name="password"
+          required
+          error={state.errors?.password}
+        >
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
         </Field>
         <SubmitButton variant="secondary" pendingLabel="Generating…">
           <KeyRound size={14} aria-hidden /> Generate 8 recovery codes
@@ -201,7 +288,9 @@ export function RevokeSessionsPanel({ count }: { count: number }) {
   return (
     <form action={action} className="space-y-3 p-4">
       <p className="text-sm text-[var(--text-muted)]">
-        {count === 1 ? 'This is your only active session.' : `${count} sessions are currently active.`}
+        {count === 1
+          ? 'This is your only active session.'
+          : `${count} sessions are currently active.`}
       </p>
       <FormMessage state={state} />
       <SubmitButton variant="secondary" size="sm" pendingLabel="Signing out…" disabled={count < 2}>
@@ -226,16 +315,28 @@ export function DeleteAccountPanel() {
   return (
     <form action={action} className="space-y-3 p-4" noValidate>
       <Alert tone="danger" title="This permanently deletes everything">
-        Your records, balance history, refund cases, reminders, uploaded files and settings are removed
-        from the database and from disk. It is not a soft delete and there is no undo. Export your data
-        first if you want a copy.
+        Your records, balance history, refund cases, reminders, uploaded files and settings are
+        removed from the database and from disk. It is not a soft delete and there is no undo.
+        Export your data first if you want a copy.
       </Alert>
       <FormMessage state={state} />
       <Field label="Your password" name="password" required error={state.errors?.password}>
-        <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+        />
       </Field>
       <Field label="Type: delete my account" name="confirm" required error={state.errors?.confirm}>
-        <Input id="confirm" name="confirm" placeholder="delete my account" autoComplete="off" required />
+        <Input
+          id="confirm"
+          name="confirm"
+          placeholder="delete my account"
+          autoComplete="off"
+          required
+        />
       </Field>
       <div className="flex gap-2">
         <SubmitButton variant="danger" size="sm" pendingLabel="Deleting…">
@@ -254,8 +355,8 @@ export function PlanOverridePanel({ current }: { current: string }) {
   return (
     <form action={action} className="space-y-3 p-4" noValidate>
       <Alert tone="warning" title="Development build only">
-        No payment provider exists. This switch changes the entitlement record directly so plan limits can
-        be exercised in testing. It is unavailable in a production build.
+        No payment provider exists. This switch changes the entitlement record directly so plan
+        limits can be exercised in testing. It is unavailable in a production build.
       </Alert>
       <FormMessage state={state} />
       <Field label="Plan" name="plan">
@@ -275,7 +376,11 @@ export function PlanOverridePanel({ current }: { current: string }) {
 export function ImportPanel() {
   const [state, action] = useActionState<FormState, FormData>(importBenefitsAction, {});
   const report = state.payload?.report as
-    | { created: number; skippedDuplicates: Array<{ title: string; signals: string[] }>; errors: Array<{ index: number; title: string; problem: string }> }
+    | {
+        created: number;
+        skippedDuplicates: Array<{ title: string; signals: string[] }>;
+        errors: Array<{ index: number; title: string; problem: string }>;
+      }
     | undefined;
 
   return (
@@ -358,7 +463,14 @@ export function ExportCodesForm() {
         label="I understand this file contains usable codes"
       />
       <Field label="Confirm your password" name="password" required>
-        <Input id="export-password" name="password" type="password" autoComplete="current-password" required disabled={!confirmed} />
+        <Input
+          id="export-password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          required
+          disabled={!confirmed}
+        />
       </Field>
       <SubmitButton variant="secondary" size="sm" disabled={!confirmed} pendingLabel="Preparing…">
         Download archive with codes

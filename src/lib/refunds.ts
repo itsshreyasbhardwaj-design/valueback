@@ -24,15 +24,37 @@ export const REFUND_TRANSITIONS: Record<RefundStatus, RefundStatus[]> = {
   requested: ['accepted', 'initiated', 'disputed', 'closed_without_receipt'],
   accepted: ['initiated', 'awaiting_receipt', 'disputed', 'closed_without_receipt'],
   initiated: ['awaiting_receipt', 'partially_received', 'received_confirmed', 'disputed'],
-  awaiting_receipt: ['partially_received', 'received_confirmed', 'disputed', 'closed_without_receipt'],
-  partially_received: ['received_confirmed', 'partially_received', 'disputed', 'closed_without_receipt'],
+  awaiting_receipt: [
+    'partially_received',
+    'received_confirmed',
+    'disputed',
+    'closed_without_receipt',
+  ],
+  partially_received: [
+    'received_confirmed',
+    'partially_received',
+    'disputed',
+    'closed_without_receipt',
+  ],
   received_confirmed: ['disputed'],
-  disputed: ['accepted', 'initiated', 'awaiting_receipt', 'partially_received', 'received_confirmed', 'closed_without_receipt'],
+  disputed: [
+    'accepted',
+    'initiated',
+    'awaiting_receipt',
+    'partially_received',
+    'received_confirmed',
+    'closed_without_receipt',
+  ],
   closed_without_receipt: ['disputed', 'requested'],
 };
 
 export const OPEN_REFUND_STATUSES: RefundStatus[] = [
-  'requested', 'accepted', 'initiated', 'awaiting_receipt', 'partially_received', 'disputed',
+  'requested',
+  'accepted',
+  'initiated',
+  'awaiting_receipt',
+  'partially_received',
+  'disputed',
 ];
 
 export function refundStatusLabel(s: RefundStatus): string {
@@ -104,7 +126,9 @@ export function createRefundCase(input: CreateRefundInput): RefundCase {
   });
   const created = db.select().from(refundCases).where(eq(refundCases.id, id)).get()!;
   syncRefundCheckIn(input.userId, created, input.checkInDays, today);
-  audit(input.userId, 'refund.create', 'refund_case', id, { merchant: input.merchant.slice(0, 60) });
+  audit(input.userId, 'refund.create', 'refund_case', id, {
+    merchant: input.merchant.slice(0, 60),
+  });
   return created;
 }
 
@@ -203,16 +227,36 @@ export function transitionRefund(
 export function updateRefundDetails(
   actorUserId: string,
   rc: RefundCase,
-  patch: Partial<Pick<RefundCase, 'merchant' | 'orderRef' | 'referenceNumber' | 'purchaseDate' | 'initiatedAt' | 'expectedByDate' | 'method' | 'notes' | 'amountMinor'>>,
+  patch: Partial<
+    Pick<
+      RefundCase,
+      | 'merchant'
+      | 'orderRef'
+      | 'referenceNumber'
+      | 'purchaseDate'
+      | 'initiatedAt'
+      | 'expectedByDate'
+      | 'method'
+      | 'notes'
+      | 'amountMinor'
+    >
+  >,
   checkInDays: number,
 ): TransitionResult {
   if (patch.amountMinor != null) {
-    if (patch.amountMinor <= 0) return { ok: false, error: 'The expected amount must be greater than zero.' };
+    if (patch.amountMinor <= 0)
+      return { ok: false, error: 'The expected amount must be greater than zero.' };
     if (patch.amountMinor < rc.receivedAmountMinor) {
-      return { ok: false, error: 'The expected amount cannot be less than what you have already confirmed receiving.' };
+      return {
+        ok: false,
+        error: 'The expected amount cannot be less than what you have already confirmed receiving.',
+      };
     }
   }
-  db.update(refundCases).set({ ...patch, updatedAt: nowIso() }).where(eq(refundCases.id, rc.id)).run();
+  db.update(refundCases)
+    .set({ ...patch, updatedAt: nowIso() })
+    .where(eq(refundCases.id, rc.id))
+    .run();
   const updated = db.select().from(refundCases).where(eq(refundCases.id, rc.id)).get()!;
   syncRefundCheckIn(updated.userId, updated, checkInDays);
   audit(actorUserId, 'refund.update', 'refund_case', rc.id, {});
@@ -297,8 +341,10 @@ export function buildFollowUpDraft(
   if (rc.orderRef) facts.push(`Order reference: ${rc.orderRef}`);
   if (rc.referenceNumber) facts.push(`Refund reference: ${rc.referenceNumber}`);
   if (rc.purchaseDate) facts.push(`Purchase date: ${formatDate(rc.purchaseDate, dateFormat)}`);
-  if (rc.initiatedAt) facts.push(`Return or cancellation raised: ${formatDate(rc.initiatedAt, dateFormat)}`);
-  if (rc.expectedByDate) facts.push(`Refund window I was given: by ${formatDate(rc.expectedByDate, dateFormat)}`);
+  if (rc.initiatedAt)
+    facts.push(`Return or cancellation raised: ${formatDate(rc.initiatedAt, dateFormat)}`);
+  if (rc.expectedByDate)
+    facts.push(`Refund window I was given: by ${formatDate(rc.expectedByDate, dateFormat)}`);
   if (rc.method) facts.push(`Expected refund method: ${rc.method}`);
   if (rc.receivedAmountMinor > 0) {
     facts.push(
@@ -375,7 +421,12 @@ export function listRefundCases(userId: string, f: RefundFilters = {}) {
     .limit(pageSize)
     .offset((page - 1) * pageSize)
     .all();
-  const total = db.select({ n: count() }).from(refundCases).where(and(...where)).get()?.n ?? 0;
+  const total =
+    db
+      .select({ n: count() })
+      .from(refundCases)
+      .where(and(...where))
+      .get()?.n ?? 0;
   return { rows, total, page, pageSize, pages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 

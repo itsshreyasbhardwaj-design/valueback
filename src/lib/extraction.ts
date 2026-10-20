@@ -52,7 +52,11 @@ const CLASS_RULES: Record<BenefitCategory | 'refund_case', Rule[]> = {
     { re: /\bgift\s?cards?\b/i, weight: 6, why: 'mentions a gift card' },
     { re: /\be-?gift\b/i, weight: 5, why: 'mentions an e-gift' },
     { re: /\bgift\s?vouchers?\b/i, weight: 5, why: 'mentions a gift voucher' },
-    { re: /\bredeem(?:able)?\s+(?:at|online|in\s?store)\b/i, weight: 2, why: 'describes redeeming at a store' },
+    {
+      re: /\bredeem(?:able)?\s+(?:at|online|in\s?store)\b/i,
+      weight: 2,
+      why: 'describes redeeming at a store',
+    },
   ],
   store_credit: [
     { re: /\bstore\s?credit\b/i, weight: 6, why: 'mentions store credit' },
@@ -62,16 +66,42 @@ const CLASS_RULES: Record<BenefitCategory | 'refund_case', Rule[]> = {
   ],
   refund: [{ re: /\brefund\s?(?:voucher|credit)\b/i, weight: 4, why: 'mentions a refund voucher' }],
   refund_case: [
-    { re: /\brefund\s+(?:has been\s+)?(?:initiated|processed|issued)\b/i, weight: 7, why: 'says a refund was initiated' },
-    { re: /\breturn\s+(?:request|initiated|accepted|picked up)\b/i, weight: 6, why: 'describes a return' },
+    {
+      re: /\brefund\s+(?:has been\s+)?(?:initiated|processed|issued)\b/i,
+      weight: 7,
+      why: 'says a refund was initiated',
+    },
+    {
+      re: /\brefund\b[\s\S]{0,80}?\b(?:initiated|processed|issued|credited|approved|on its way)\b/i,
+      weight: 6,
+      why: 'says a refund is on its way',
+    },
+    { re: /\brefund of\b/i, weight: 4, why: 'states a refund amount' },
+    {
+      re: /\breturn\s+(?:request|initiated|accepted|picked up)\b/i,
+      weight: 6,
+      why: 'describes a return',
+    },
     { re: /\border\s+cancell?ed\b/i, weight: 5, why: 'mentions a cancelled order' },
     { re: /\brefund\b/i, weight: 3, why: 'mentions a refund' },
-    { re: /\b\d+\s*(?:-|to)?\s*\d*\s*(?:business\s+)?days?\b.{0,30}\brefund\b/i, weight: 3, why: 'gives a refund timeline' },
-    { re: /\brefund\b.{0,40}\b\d+\s*(?:business\s+)?days?\b/i, weight: 3, why: 'gives a refund timeline' },
+    {
+      re: /\b\d+\s*(?:-|to)?\s*\d*\s*(?:business\s+)?days?\b.{0,30}\brefund\b/i,
+      weight: 3,
+      why: 'gives a refund timeline',
+    },
+    {
+      re: /\brefund\b.{0,40}\b\d+\s*(?:business\s+)?days?\b/i,
+      weight: 3,
+      why: 'gives a refund timeline',
+    },
   ],
   cashback: [
     { re: /\bcash\s?back\b/i, weight: 6, why: 'mentions cashback' },
-    { re: /\bcashback\s+(?:credited|earned|pending)\b/i, weight: 3, why: 'describes cashback status' },
+    {
+      re: /\bcashback\s+(?:credited|earned|pending)\b/i,
+      weight: 3,
+      why: 'describes cashback status',
+    },
   ],
   coupon: [
     { re: /\bcoupon\b/i, weight: 6, why: 'mentions a coupon' },
@@ -81,8 +111,16 @@ const CLASS_RULES: Record<BenefitCategory | 'refund_case', Rule[]> = {
     { re: /\bflat\s*(?:₹|rs\.?|inr)\s?\d+\s*off\b/i, weight: 4, why: 'offers a flat amount off' },
   ],
   prepaid_service: [
-    { re: /\b(?:pack|package)\s+of\s+\d+\s+(?:classes|sessions|visits)\b/i, weight: 7, why: 'describes a package of sessions' },
-    { re: /\b\d+\s+(?:classes|sessions|visits|appointments)\b/i, weight: 5, why: 'counts sessions' },
+    {
+      re: /\b(?:pack|package)\s+of\s+\d+\s+(?:classes|sessions|visits)\b/i,
+      weight: 7,
+      why: 'describes a package of sessions',
+    },
+    {
+      re: /\b\d+\s+(?:classes|sessions|visits|appointments)\b/i,
+      weight: 5,
+      why: 'counts sessions',
+    },
     { re: /\bprepaid\b/i, weight: 3, why: 'says prepaid' },
     { re: /\bvalidity\b/i, weight: 2, why: 'mentions a validity period' },
   ],
@@ -96,7 +134,11 @@ const CLASS_RULES: Record<BenefitCategory | 'refund_case', Rule[]> = {
     { re: /\byou(?:'ve| have)\s+earned\s+\d+\s+points\b/i, weight: 5, why: 'states points earned' },
   ],
   travel_voucher: [
-    { re: /\b(?:travel|flight|airline|ticket)\s+(?:voucher|credit)\b/i, weight: 7, why: 'mentions a travel voucher' },
+    {
+      re: /\b(?:travel|flight|airline|ticket)\s+(?:voucher|credit)\b/i,
+      weight: 7,
+      why: 'mentions a travel voucher',
+    },
     { re: /\bPNR\b/, weight: 3, why: 'contains a PNR' },
     { re: /\bemd\b|\bfuture travel credit\b/i, weight: 4, why: 'mentions future travel credit' },
   ],
@@ -125,7 +167,11 @@ export function classify(text: string): {
   const [key, v] = best!;
   // Below this the signal is one weak keyword; make the user choose instead.
   if (v.score < 4) return { classification: null, score: v.score, reasons: v.reasons };
-  return { classification: key as BenefitCategory | 'refund_case', score: v.score, reasons: v.reasons };
+  return {
+    classification: key as BenefitCategory | 'refund_case',
+    score: v.score,
+    reasons: v.reasons,
+  };
 }
 
 /* -------------------------------------------------------------- fields */
@@ -150,12 +196,45 @@ function detectCurrency(text: string): Proposed<string> | undefined {
 const AMOUNT = String.raw`(?:₹|rs\.?|inr|usd|\$|eur|€|gbp|£)?\s*([0-9][0-9,\s]*(?:\.[0-9]{1,2})?)`;
 
 const AMOUNT_RULES: Array<{ re: RegExp; confidence: Confidence; why: string }> = [
-  { re: new RegExp(String.raw`(?:gift\s?card|voucher|card)\s*(?:value|amount|balance|worth)\s*(?:of)?\s*[:\-]?\s*${AMOUNT}`, 'i'), confidence: 'high', why: 'labelled card value' },
-  { re: new RegExp(String.raw`refund\s*(?:amount|of|value|total)?\s*[:\-]?\s*${AMOUNT}`, 'i'), confidence: 'high', why: 'labelled refund amount' },
-  { re: new RegExp(String.raw`(?:remaining|available|current)\s*(?:balance|credit|value)\s*[:\-]?\s*${AMOUNT}`, 'i'), confidence: 'high', why: 'labelled remaining balance' },
-  { re: new RegExp(String.raw`(?:credit\s?note|store\s?credit|cashback)\s*(?:amount|value|of)?\s*[:\-]?\s*${AMOUNT}`, 'i'), confidence: 'high', why: 'labelled credit amount' },
-  { re: new RegExp(String.raw`(?:amount|total|value|balance|worth)\s*[:\-]\s*${AMOUNT}`, 'i'), confidence: 'medium', why: 'generic amount label' },
-  { re: new RegExp(String.raw`(?:₹|rs\.?\s|inr\s|\$|€|£)\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)`, 'i'), confidence: 'low', why: 'an amount appears in the text' },
+  {
+    re: new RegExp(
+      String.raw`(?:gift\s?card|voucher|card)\s*(?:value|amount|balance|worth)\s*(?:of)?\s*[:\-]?\s*${AMOUNT}`,
+      'i',
+    ),
+    confidence: 'high',
+    why: 'labelled card value',
+  },
+  {
+    re: new RegExp(String.raw`refund\s*(?:amount|of|value|total)?\s*[:\-]?\s*${AMOUNT}`, 'i'),
+    confidence: 'high',
+    why: 'labelled refund amount',
+  },
+  {
+    re: new RegExp(
+      String.raw`(?:remaining|available|current)\s*(?:balance|credit|value)\s*[:\-]?\s*${AMOUNT}`,
+      'i',
+    ),
+    confidence: 'high',
+    why: 'labelled remaining balance',
+  },
+  {
+    re: new RegExp(
+      String.raw`(?:credit\s?note|store\s?credit|cashback)\s*(?:amount|value|of)?\s*[:\-]?\s*${AMOUNT}`,
+      'i',
+    ),
+    confidence: 'high',
+    why: 'labelled credit amount',
+  },
+  {
+    re: new RegExp(String.raw`(?:amount|total|value|balance|worth)\s*[:\-]\s*${AMOUNT}`, 'i'),
+    confidence: 'medium',
+    why: 'generic amount label',
+  },
+  {
+    re: new RegExp(String.raw`(?:₹|rs\.?\s|inr\s|\$|€|£)\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)`, 'i'),
+    confidence: 'low',
+    why: 'an amount appears in the text',
+  },
 ];
 
 function detectAmount(text: string, currency: string): Proposed<number> | undefined {
@@ -169,10 +248,19 @@ function detectAmount(text: string, currency: string): Proposed<number> | undefi
   return undefined;
 }
 
-const DATE_LABELS: Array<{ field: 'expiresAt' | 'issuedAt'; re: RegExp; confidence: Confidence }> = [
-  { field: 'expiresAt', re: /(?:valid\s*(?:till|until|thru|through|up\s?to)|expir(?:es|y|ation)\s*(?:on|date)?|use\s*(?:by|before)|last\s*date)\s*[:\-]?\s*([^\n,;]{4,30})/i, confidence: 'high' },
-  { field: 'issuedAt', re: /(?:issued?\s*(?:on|date)?|date\s*of\s*issue|purchase\s*date|order\s*date|invoice\s*date|transaction\s*date)\s*[:\-]?\s*([^\n,;]{4,30})/i, confidence: 'high' },
-];
+const DATE_LABELS: Array<{ field: 'expiresAt' | 'issuedAt'; re: RegExp; confidence: Confidence }> =
+  [
+    {
+      field: 'expiresAt',
+      re: /(?:valid\s*(?:till|until|thru|through|up\s?to)|expir(?:es|y|ation)\s*(?:on|date)?|use\s*(?:by|before)|last\s*date)\s*[:\-]?\s*([^\n,;]{4,30})/i,
+      confidence: 'high',
+    },
+    {
+      field: 'issuedAt',
+      re: /(?:issued?\s*(?:on|date)?|date\s*of\s*issue|purchase\s*date|order\s*date|invoice\s*date|transaction\s*date)\s*[:\-]?\s*([^\n,;]{4,30})/i,
+      confidence: 'high',
+    },
+  ];
 
 const ORDER_RE =
   /\b(?:order|invoice|reference|ref|txn|transaction|booking|awb|rma)\s*(?:no\.?|number|id|#)?\s*[:#]?\s*([A-Z0-9][A-Z0-9\/-]{4,28})\b/i;
@@ -180,15 +268,24 @@ const ORDER_RE =
 const CODE_RE =
   /\b(?:(?:gift\s?card|voucher|promo|coupon|discount|redemption|pin)\s*code|code)\s*[:\-]?\s*([A-Z0-9][A-Z0-9-]{3,30})\b/i;
 
+/**
+ * "within 7 business days", "in 7-10 working days", "within 2 weeks".
+ * When a range is given we take the LATER bound, so the app never tells someone
+ * a merchant is late when they still have days in hand.
+ */
 const REFUND_WINDOW_RE =
-  /refund[^.\n]{0,60}?\bwithin\s+(\d{1,3})\s*(?:-\s*\d{1,3}\s*)?(business\s+|working\s+)?(day|week)s?|\bwithin\s+(\d{1,3})\s*(?:-\s*\d{1,3}\s*)?(business\s+|working\s+)?(day|week)s?[^.\n]{0,60}?refund/i;
+  /\b(?:with)?in\s+(?:(\d{1,3})\s*(?:-|–|to)\s*)?(\d{1,3})\s*(business\s+|working\s+)?(day|week)s?\b/i;
+const REFUND_CONTEXT_RE = /\brefund|\bcredit(?:ed)?\b|\breturn\b|\breversal\b/i;
 
 const CONDITION_RE =
   /((?:not\s+valid|cannot\s+be\s+(?:combined|exchanged|redeemed)|non[-\s]?refundable|no\s+cash\s+(?:value|alternative)|minimum\s+(?:purchase|order|spend)|one\s+per\s+customer|valid\s+only\s+on)[^\n.]{0,120}\.?)/i;
 
 function snippet(text: string, index: number, span = 70): string {
   const start = Math.max(0, index - 10);
-  return text.slice(start, Math.min(text.length, start + span)).replace(/\s+/g, ' ').trim();
+  return text
+    .slice(start, Math.min(text.length, start + span))
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -221,13 +318,21 @@ export function extractFields(
     if (!m?.[1]) continue;
     const parsed = parseLooseDate(m[1], today);
     if (parsed) {
-      fields[d.field] = { value: parsed, confidence: d.confidence, evidence: snippet(flat, m.index) };
+      fields[d.field] = {
+        value: parsed,
+        confidence: d.confidence,
+        evidence: snippet(flat, m.index),
+      };
     }
   }
 
   const order = ORDER_RE.exec(flat);
   if (order?.[1]) {
-    fields.orderRef = { value: order[1].toUpperCase(), confidence: 'high', evidence: snippet(flat, order.index) };
+    fields.orderRef = {
+      value: order[1].toUpperCase(),
+      confidence: 'high',
+      evidence: snippet(flat, order.index),
+    };
   }
 
   const code = CODE_RE.exec(flat);
@@ -241,10 +346,10 @@ export function extractFields(
     };
   }
 
-  const window = REFUND_WINDOW_RE.exec(flat);
+  const window = REFUND_CONTEXT_RE.test(flat) ? REFUND_WINDOW_RE.exec(flat) : null;
   if (window) {
-    const n = Number(window[1] ?? window[4]);
-    const unit = (window[3] ?? window[6] ?? 'day').toLowerCase();
+    const n = Number(window[2]);
+    const unit = (window[4] ?? 'day').toLowerCase();
     if (Number.isFinite(n) && n > 0) {
       const base = fields.issuedAt?.value ?? options.context?.date ?? today;
       const days = unit.startsWith('week') ? n * 7 : n;
@@ -258,7 +363,11 @@ export function extractFields(
 
   const cond = CONDITION_RE.exec(flat);
   if (cond?.[1]) {
-    fields.conditions = { value: cond[1].trim(), confidence: 'medium', evidence: snippet(flat, cond.index) };
+    fields.conditions = {
+      value: cond[1].trim(),
+      confidence: 'medium',
+      evidence: snippet(flat, cond.index),
+    };
   }
 
   const merchant = detectMerchant(flat, options.context);
@@ -270,21 +379,38 @@ export function extractFields(
   return fields;
 }
 
-const MERCHANT_LABEL_RE = /(?:merchant|seller|sold\s?by|store|brand|from|retailer)\s*[:\-]\s*([A-Za-z0-9][A-Za-z0-9 &'.\-]{1,40})/i;
-const GENERIC_DOMAINS = new Set(['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'icloud.com', 'proton.me']);
+const MERCHANT_LABEL_RE =
+  /(?:merchant|seller|sold\s?by|store|brand|from|retailer)\s*[:\-]\s*([A-Za-z0-9][A-Za-z0-9 &'.\-]{1,40})/i;
+const GENERIC_DOMAINS = new Set([
+  'gmail.com',
+  'outlook.com',
+  'yahoo.com',
+  'hotmail.com',
+  'icloud.com',
+  'proton.me',
+]);
 
 function detectMerchant(
   text: string,
   context?: { merchant?: string; date?: string; subject?: string },
 ): Proposed<string> | undefined {
   if (context?.merchant) {
-    return { value: context.merchant, confidence: 'high', evidence: 'Sender of the imported email' };
+    return {
+      value: context.merchant,
+      confidence: 'high',
+      evidence: 'Sender of the imported email',
+    };
   }
   const labelled = MERCHANT_LABEL_RE.exec(text);
   if (labelled?.[1]) {
-    return { value: labelled[1].trim(), confidence: 'high', evidence: snippet(text, labelled.index) };
+    return {
+      value: labelled[1].trim(),
+      confidence: 'high',
+      evidence: snippet(text, labelled.index),
+    };
   }
-  const domain = /\b(?:www\.)?([a-z0-9][a-z0-9-]{1,30})\.(?:com|in|co\.in|io|net|org|shop|store)\b/i.exec(text);
+  const domain =
+    /\b(?:www\.)?([a-z0-9][a-z0-9-]{1,30})\.(?:com|in|co\.in|io|net|org|shop|store)\b/i.exec(text);
   if (domain?.[1] && !GENERIC_DOMAINS.has(domain[0].toLowerCase())) {
     const name = domain[1]!;
     return {
@@ -302,20 +428,40 @@ function buildTitle(
   merchant?: string,
 ): Proposed<string> | undefined {
   if (context?.subject) {
-    return { value: context.subject.slice(0, 80), confidence: 'medium', evidence: 'Email subject line' };
+    return {
+      value: context.subject.slice(0, 80),
+      confidence: 'medium',
+      evidence: 'Email subject line',
+    };
   }
-  const firstLine = text.split('\n').map((l) => l.trim()).find((l) => l.length >= 4 && l.length <= 80);
+  const firstLine = text
+    .split('\n')
+    .map((l) => l.trim())
+    .find((l) => l.length >= 4 && l.length <= 80);
   if (firstLine) {
-    return { value: firstLine.slice(0, 80), confidence: 'low', evidence: 'First readable line of the document' };
+    return {
+      value: firstLine.slice(0, 80),
+      confidence: 'low',
+      evidence: 'First readable line of the document',
+    };
   }
-  if (merchant) return { value: `${merchant} benefit`, confidence: 'low', evidence: 'Built from the merchant name' };
+  if (merchant)
+    return {
+      value: `${merchant} benefit`,
+      confidence: 'low',
+      evidence: 'Built from the merchant name',
+    };
   return undefined;
 }
 
 /** Full pipeline over already-extracted text. */
 export function analyseText(
   text: string,
-  options: { defaultCurrency: string; today?: string; context?: { merchant?: string; date?: string; subject?: string } },
+  options: {
+    defaultCurrency: string;
+    today?: string;
+    context?: { merchant?: string; date?: string; subject?: string };
+  },
 ): ExtractionResult {
   const trimmed = text.trim();
   if (trimmed.length < 12) {
@@ -350,12 +496,14 @@ export function suggestedActions(result: ExtractionResult): string[] {
   const out: string[] = [];
   if (result.classification === 'refund_case') {
     out.push('Track this as a refund case so the expected date is watched.');
-    if (result.fields.expectedByDate) out.push('A refund window was found — a check-in reminder will be scheduled.');
+    if (result.fields.expectedByDate)
+      out.push('A refund window was found — a check-in reminder will be scheduled.');
   } else if (result.classification) {
     out.push('Save this as a benefit so its expiry is watched.');
   }
   if (result.fields.code) out.push('A code was detected. It will be encrypted and shown masked.');
-  if (!result.fields.amountMinor) out.push('No amount was found — add it by hand if the document has one.');
+  if (!result.fields.amountMinor)
+    out.push('No amount was found — add it by hand if the document has one.');
   if (!result.fields.expiresAt && result.classification !== 'refund_case') {
     out.push('No expiry date was found — add it if you know it, so reminders can be scheduled.');
   }

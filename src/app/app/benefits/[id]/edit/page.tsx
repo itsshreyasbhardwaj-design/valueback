@@ -27,7 +27,10 @@ export default async function EditBenefitPage({ params }: { params: Promise<{ id
 
   return (
     <>
-      <PageHeader title="Edit benefit" description="Balances are changed from the record page so the history stays intact." />
+      <PageHeader
+        title="Edit benefit"
+        description="Balances are changed from the record page so the history stays intact."
+      />
       <datalist id="merchant-hints">
         {merchants.map((m) => (
           <option key={m} value={m} />

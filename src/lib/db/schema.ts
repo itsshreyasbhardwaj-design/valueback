@@ -138,7 +138,8 @@ export const userSettings = sqliteTable('user_settings', {
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
   currency: text('currency').notNull().default('INR'),
-  dateFormat: text('date_format').$type<'dd/MM/yyyy' | 'MM/dd/yyyy' | 'yyyy-MM-dd'>()
+  dateFormat: text('date_format')
+    .$type<'dd/MM/yyyy' | 'MM/dd/yyyy' | 'yyyy-MM-dd'>()
     .notNull()
     .default('dd/MM/yyyy'),
   timeZone: text('time_zone').notNull().default('Asia/Kolkata'),
@@ -149,9 +150,7 @@ export const userSettings = sqliteTable('user_settings', {
   notifyInApp: integer('notify_in_app', { mode: 'boolean' }).notNull().default(true),
   notifyBrowser: integer('notify_browser', { mode: 'boolean' }).notNull().default(false),
   /** opt-in: include document text in search index */
-  searchDocumentText: integer('search_document_text', { mode: 'boolean' })
-    .notNull()
-    .default(true),
+  searchDocumentText: integer('search_document_text', { mode: 'boolean' }).notNull().default(true),
   onboardingStep: integer('onboarding_step').notNull().default(0),
   onboardingCompletedAt: text('onboarding_completed_at'),
   /** JSON array of category ids the user said they want to track */
@@ -247,7 +246,8 @@ export const benefits = sqliteTable(
     codeHint: text('code_hint'), // e.g. "••••1234", safe to display
 
     /** recurring prepaid allowances, e.g. 4 sessions per month */
-    recurrence: text('recurrence').$type<'none' | 'monthly' | 'quarterly' | 'yearly'>()
+    recurrence: text('recurrence')
+      .$type<'none' | 'monthly' | 'quarterly' | 'yearly'>()
       .notNull()
       .default('none'),
     recurrenceUnits: integer('recurrence_units'),

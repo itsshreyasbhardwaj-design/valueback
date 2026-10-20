@@ -58,10 +58,15 @@ export async function createBenefitAction(_prev: FormState, fd: FormData): Promi
 
   const original = d.originalValue ? parseMoneyToMinor(d.originalValue, d.currency) : null;
   const current = d.currentValue ? parseMoneyToMinor(d.currentValue, d.currency) : null;
-  if (d.originalValue && original == null) return { ok: false, errors: { originalValue: 'Enter a valid amount.' } };
-  if (d.currentValue && current == null) return { ok: false, errors: { currentValue: 'Enter a valid amount.' } };
+  if (d.originalValue && original == null)
+    return { ok: false, errors: { originalValue: 'Enter a valid amount.' } };
+  if (d.currentValue && current == null)
+    return { ok: false, errors: { currentValue: 'Enter a valid amount.' } };
   if (original != null && current != null && current > original) {
-    return { ok: false, errors: { currentValue: 'The remaining balance cannot be more than the original value.' } };
+    return {
+      ok: false,
+      errors: { currentValue: 'The remaining balance cannot be more than the original value.' },
+    };
   }
   const units = d.units ? Number(d.units) : null;
   if (d.recurrence !== 'none' && !d.recurrenceUnits) {
@@ -83,12 +88,21 @@ export async function createBenefitAction(_prev: FormState, fd: FormData): Promi
     expiresAt: d.expiresAt ?? null,
     conditions: d.conditions,
     notes: d.notes,
-    tags: d.tags ? d.tags.split(',').map((t) => t.trim()).filter(Boolean).slice(0, 12) : [],
+    tags: d.tags
+      ? d.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+          .slice(0, 12)
+      : [],
     code: d.code || null,
     recurrence: d.recurrence,
     recurrenceUnits: d.recurrenceUnits ? Number(d.recurrenceUnits) : null,
     recurrenceAnchor: d.recurrenceAnchor ?? null,
-    evidence: (fd.get('evidence') as string) === 'document_extracted' ? 'document_extracted' : 'user_entered',
+    evidence:
+      (fd.get('evidence') as string) === 'document_extracted'
+        ? 'document_extracted'
+        : 'user_entered',
     reminderOffsets: parseOffsets(user.settings.reminderOffsets),
     documentId: (fd.get('documentId') as string) || null,
   });
@@ -140,7 +154,13 @@ export async function updateBenefitAction(_prev: FormState, fd: FormData): Promi
       expiresAt: d.expiresAt ?? null,
       conditions: d.conditions,
       notes: d.notes,
-      tags: d.tags ? d.tags.split(',').map((t) => t.trim()).filter(Boolean).slice(0, 12) : [],
+      tags: d.tags
+        ? d.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .slice(0, 12)
+        : [],
       recurrence: d.recurrence,
       recurrenceUnits: d.recurrenceUnits ? Number(d.recurrenceUnits) : null,
       recurrenceAnchor: d.recurrenceAnchor ?? null,
@@ -167,12 +187,19 @@ export async function recordBalanceAction(_prev: FormState, fd: FormData): Promi
   const { benefit } = found.value;
 
   const amountMinor = d.amount ? parseMoneyToMinor(d.amount, benefit.currency) : null;
-  if (d.amount && amountMinor == null) return { ok: false, errors: { amount: 'Enter a valid amount.' } };
+  if (d.amount && amountMinor == null)
+    return { ok: false, errors: { amount: 'Enter a valid amount.' } };
   const units = d.units ? Number(d.units) : null;
 
   let change: BalanceChange;
   if (d.type === 'usage') {
-    change = { type: 'usage', amountMinor, units, reason: d.reason || 'Recorded as used', occurredAt: d.occurredAt };
+    change = {
+      type: 'usage',
+      amountMinor,
+      units,
+      reason: d.reason || 'Recorded as used',
+      occurredAt: d.occurredAt,
+    };
   } else if (d.type === 'redeemed') {
     change = { type: 'redeemed', reason: d.reason || 'Fully redeemed', occurredAt: d.occurredAt };
   } else if (d.type === 'revalidation') {
@@ -187,12 +214,19 @@ export async function recordBalanceAction(_prev: FormState, fd: FormData): Promi
       type: d.type,
       newValueMinor: d.amount ? amountMinor : undefined,
       newUnits: d.units ? units : undefined,
-      reason: d.reason || (d.type === 'verified_update' ? 'Checked with the provider' : 'Corrected by the user'),
+      reason:
+        d.reason ||
+        (d.type === 'verified_update' ? 'Checked with the provider' : 'Corrected by the user'),
       occurredAt: d.occurredAt,
     };
   }
 
-  const result = recordBalanceEvent(user.id, benefit, change, parseOffsets(user.settings.reminderOffsets));
+  const result = recordBalanceEvent(
+    user.id,
+    benefit,
+    change,
+    parseOffsets(user.settings.reminderOffsets),
+  );
   if (!result.ok) return { ok: false, errors: { _form: result.error } };
 
   revalidatePath(`/app/benefits/${id}`);
@@ -248,7 +282,11 @@ export async function deleteBenefitAction(_prev: FormState, fd: FormData): Promi
   if (!found.value.access.isOwner) {
     return { ok: false, errors: { _form: 'Only the owner of a record can delete it.' } };
   }
-  if (String(fd.get('confirm') ?? '').trim().toLowerCase() !== 'delete') {
+  if (
+    String(fd.get('confirm') ?? '')
+      .trim()
+      .toLowerCase() !== 'delete'
+  ) {
     return { ok: false, errors: { confirm: 'Type delete to confirm.' } };
   }
   db.delete(benefits).where(eq(benefits.id, id)).run();
@@ -288,7 +326,9 @@ export async function revokeShareAction(_prev: FormState, fd: FormData): Promise
 }
 
 /** Returns the decrypted code to the caller only; it is never logged. */
-export async function revealCodeAction(benefitId: string): Promise<{ ok: boolean; code?: string; error?: string }> {
+export async function revealCodeAction(
+  benefitId: string,
+): Promise<{ ok: boolean; code?: string; error?: string }> {
   const user = await requireUserForAction();
   try {
     const { benefit } = getBenefitFor(user.id, benefitId, 'view');
@@ -297,7 +337,8 @@ export async function revealCodeAction(benefitId: string): Promise<{ ok: boolean
     if (code == null) {
       return {
         ok: false,
-        error: 'The stored code could not be decrypted. This happens if APP_ENCRYPTION_KEY changed since it was saved.',
+        error:
+          'The stored code could not be decrypted. This happens if APP_ENCRYPTION_KEY changed since it was saved.',
       };
     }
     audit(user.id, 'benefit.code.reveal', 'benefit', benefitId, {});

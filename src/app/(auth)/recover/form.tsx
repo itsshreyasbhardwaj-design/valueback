@@ -21,14 +21,44 @@ export function RecoverForm() {
         <Field label="Email address" name="email" required>
           <Input id="email" name="email" type="email" autoComplete="email" required autoFocus />
         </Field>
-        <Field label="Recovery code" name="code" required hint="Formatted like ABCD-EFGH-JKLM. Case does not matter.">
-          <Input id="code" name="code" required autoComplete="off" spellCheck={false} className="font-mono" />
+        <Field
+          label="Recovery code"
+          name="code"
+          required
+          hint="Formatted like ABCD-EFGH-JKLM. Case does not matter."
+        >
+          <Input
+            id="code"
+            name="code"
+            required
+            autoComplete="off"
+            spellCheck={false}
+            className="font-mono"
+          />
         </Field>
         <Field label="New password" name="newPassword" required error={state.errors?.newPassword}>
-          <Input id="newPassword" name="newPassword" type="password" autoComplete="new-password" minLength={10} required />
+          <Input
+            id="newPassword"
+            name="newPassword"
+            type="password"
+            autoComplete="new-password"
+            minLength={10}
+            required
+          />
         </Field>
-        <Field label="Confirm new password" name="confirmPassword" required error={state.errors?.confirmPassword}>
-          <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+        <Field
+          label="Confirm new password"
+          name="confirmPassword"
+          required
+          error={state.errors?.confirmPassword}
+        >
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            required
+          />
         </Field>
         <SubmitButton className="w-full" pendingLabel="Checking…">
           Set a new password
@@ -36,8 +66,9 @@ export function RecoverForm() {
       </form>
 
       <Alert tone="neutral" className="mt-5">
-        No recovery code? There is no other way back in. Account data is held only by this installation,
-        and no email provider is connected, so nobody can verify your identity another way.
+        No recovery code? There is no other way back in. Account data is held only by this
+        installation, and no email provider is connected, so nobody can verify your identity another
+        way.
       </Alert>
 
       <p className="mt-4 text-sm text-[var(--text-muted)]">

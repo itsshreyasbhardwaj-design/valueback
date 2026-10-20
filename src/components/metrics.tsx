@@ -45,7 +45,8 @@ export function MetricCard({
       </p>
       {others.length > 0 ? (
         <p className="mt-1 text-xs text-[var(--text-faint)]">
-          also {others.map(([c, v]) => formatMoney(v, c)).join(', ')} — kept separate, no conversion rate
+          also {others.map(([c, v]) => formatMoney(v, c)).join(', ')} — kept separate, no conversion
+          rate
         </p>
       ) : null}
     </>

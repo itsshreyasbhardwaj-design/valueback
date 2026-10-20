@@ -29,7 +29,11 @@ export function AttachPanel({
 }) {
   const [state, action] = useActionState<FormState, FormData>(attachDocumentAction, {});
   if (options.length === 0) {
-    return <p className="p-4 text-sm text-[var(--text-muted)]">You have no records to attach this to yet.</p>;
+    return (
+      <p className="p-4 text-sm text-[var(--text-muted)]">
+        You have no records to attach this to yet.
+      </p>
+    );
   }
   return (
     <form action={action} className="space-y-3 p-4" noValidate>

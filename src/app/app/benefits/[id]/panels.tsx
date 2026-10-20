@@ -17,14 +17,26 @@ import {
 
 const EVENT_TYPES = [
   { value: 'usage', label: 'I used some of it', help: 'Counts towards confirmed recovered value.' },
-  { value: 'redeemed', label: 'I used all of it', help: 'Closes the record and counts the remainder as recovered.' },
+  {
+    value: 'redeemed',
+    label: 'I used all of it',
+    help: 'Closes the record and counts the remainder as recovered.',
+  },
   {
     value: 'verified_update',
     label: 'I checked the real balance',
     help: 'Records what the provider says today. Not counted as recovered — a balance you did not spend is not value you got back.',
   },
-  { value: 'correction', label: 'Fix a mistake I made', help: 'Corrects the record. Not counted as recovered.' },
-  { value: 'revalidation', label: 'The expiry moved', help: 'Records an extension and reschedules the reminders.' },
+  {
+    value: 'correction',
+    label: 'Fix a mistake I made',
+    help: 'Corrects the record. Not counted as recovered.',
+  },
+  {
+    value: 'revalidation',
+    label: 'The expiry moved',
+    help: 'Records an extension and reschedules the reminders.',
+  },
 ] as const;
 
 export function BalancePanel({
@@ -68,13 +80,23 @@ export function BalancePanel({
             name="amount"
             error={state.errors?.amount}
           >
-            <Input id="amount" name="amount" inputMode="decimal" placeholder="500.00" className="nums" />
+            <Input
+              id="amount"
+              name="amount"
+              inputMode="decimal"
+              placeholder="500.00"
+              className="nums"
+            />
           </Field>
         ) : null}
 
         {showAmount && hasUnits ? (
           <Field
-            label={type === 'usage' ? `${unitLabel || 'Units'} used` : `${unitLabel || 'Units'} remaining`}
+            label={
+              type === 'usage'
+                ? `${unitLabel || 'Units'} used`
+                : `${unitLabel || 'Units'} remaining`
+            }
             name="units"
             error={state.errors?.units}
           >
@@ -89,12 +111,30 @@ export function BalancePanel({
         ) : null}
 
         <Field label="When" name="occurredAt" required error={state.errors?.occurredAt}>
-          <Input id="occurredAt" name="occurredAt" type="date" defaultValue={today} max={today} required />
+          <Input
+            id="occurredAt"
+            name="occurredAt"
+            type="date"
+            defaultValue={today}
+            max={today}
+            required
+          />
         </Field>
       </div>
 
-      <Field label="Reason or note" name="reason" hint="Kept on the record forever — it is how the history stays readable." error={state.errors?.reason}>
-        <Textarea id="reason" name="reason" rows={2} maxLength={500} placeholder="Spent at the Koramangala store" />
+      <Field
+        label="Reason or note"
+        name="reason"
+        hint="Kept on the record forever — it is how the history stays readable."
+        error={state.errors?.reason}
+      >
+        <Textarea
+          id="reason"
+          name="reason"
+          rows={2}
+          maxLength={500}
+          placeholder="Spent at the Koramangala store"
+        />
       </Field>
 
       <SubmitButton pendingLabel="Recording…">Record it</SubmitButton>
@@ -115,7 +155,11 @@ export function StatusControl({
 }) {
   const [state, action] = useActionState<FormState, FormData>(setStatusAction, {});
   if (allowed.length === 0) {
-    return <p className="p-4 text-sm text-[var(--text-muted)]">No status changes are available from “{labels[current]}”.</p>;
+    return (
+      <p className="p-4 text-sm text-[var(--text-muted)]">
+        No status changes are available from “{labels[current]}”.
+      </p>
+    );
   }
   return (
     <form action={action} className="space-y-3 p-4">
@@ -173,7 +217,10 @@ export function CodeReveal({ benefitId, hint }: { benefitId: string; hint: strin
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   },
-                  () => setError('Your browser blocked clipboard access. Select the code and copy it manually.'),
+                  () =>
+                    setError(
+                      'Your browser blocked clipboard access. Select the code and copy it manually.',
+                    ),
                 );
               }}
             >
@@ -185,13 +232,18 @@ export function CodeReveal({ benefitId, hint }: { benefitId: string; hint: strin
           </>
         ) : (
           <Button type="button" variant="secondary" size="sm" onClick={reveal} disabled={busy}>
-            {busy ? <Loader2 size={14} className="animate-spin" aria-hidden /> : <Eye size={14} aria-hidden />}
+            {busy ? (
+              <Loader2 size={14} className="animate-spin" aria-hidden />
+            ) : (
+              <Eye size={14} aria-hidden />
+            )}
             {busy ? 'Decrypting…' : 'Reveal code'}
           </Button>
         )}
       </div>
       <p className="mt-2 text-xs text-[var(--text-faint)]">
-        Stored encrypted with AES-256-GCM. Revealing it is recorded in the audit log; the code itself never is.
+        Stored encrypted with AES-256-GCM. Revealing it is recorded in the audit log; the code
+        itself never is.
       </p>
     </div>
   );
@@ -236,9 +288,13 @@ export function SharePanel({
       {grants.length > 0 ? (
         <ul className="space-y-2">
           {grants.map((g) => (
-            <li key={g.householdId} className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] px-3 py-2">
+            <li
+              key={g.householdId}
+              className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] px-3 py-2"
+            >
               <span className="text-sm">
-                {g.householdName} <Badge tone="info">{g.permission === 'edit' ? 'Can edit' : 'View only'}</Badge>
+                {g.householdName}{' '}
+                <Badge tone="info">{g.permission === 'edit' ? 'Can edit' : 'View only'}</Badge>
               </span>
               <form action={revokeAction}>
                 <input type="hidden" name="resourceId" value={resourceId} />
@@ -294,7 +350,13 @@ export function ReminderPanel({ benefitId, today }: { benefitId: string; today: 
       <input type="hidden" name="kind" value="custom" />
       <FormMessage state={state} />
       <Field label="Remind me to" name="label" required error={state.errors?.label}>
-        <Input id="label" name="label" maxLength={120} placeholder="Use this before the trip" required />
+        <Input
+          id="label"
+          name="label"
+          maxLength={120}
+          placeholder="Use this before the trip"
+          required
+        />
       </Field>
       <Field label="On" name="dueAt" required error={state.errors?.dueAt}>
         <Input id="dueAt" name="dueAt" type="date" min={today} defaultValue={today} required />
@@ -321,11 +383,16 @@ export function DangerZone({ benefitId, isOwner }: { benefitId: string; isOwner:
         <form action={action} className="space-y-3" noValidate>
           <input type="hidden" name="id" value={benefitId} />
           <Alert tone="danger" title="This cannot be undone">
-            Deleting removes the record, its entire balance history and its reminders. Archiving keeps the
-            history and takes it out of your active list instead.
+            Deleting removes the record, its entire balance history and its reminders. Archiving
+            keeps the history and takes it out of your active list instead.
           </Alert>
           <FormMessage state={state} />
-          <Field label="Type delete to confirm" name="confirm" required error={state.errors?.confirm}>
+          <Field
+            label="Type delete to confirm"
+            name="confirm"
+            required
+            error={state.errors?.confirm}
+          >
             <Input id="confirm" name="confirm" autoComplete="off" placeholder="delete" required />
           </Field>
           <div className="flex gap-2">

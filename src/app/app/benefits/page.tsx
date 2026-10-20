@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { Wallet } from 'lucide-react';
 import { requireUser } from '@/lib/auth';
 import { listBenefits, distinctMerchants, type BenefitFilters } from '@/lib/benefits';
-import { BENEFIT_CATEGORIES, BENEFIT_STATUSES, type BenefitCategory, type BenefitStatus } from '@/lib/db/schema';
+import {
+  BENEFIT_CATEGORIES,
+  BENEFIT_STATUSES,
+  type BenefitCategory,
+  type BenefitStatus,
+} from '@/lib/db/schema';
 import { CATEGORY_LABELS, STATUS_LABELS } from '@/lib/format';
 import { todayIso } from '@/lib/dates';
 import { sharedWithMe } from '@/lib/household';
@@ -32,8 +37,12 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
 
   const filters: BenefitFilters = {
     q: q || undefined,
-    categories: BENEFIT_CATEGORIES.includes(category as BenefitCategory) ? [category as BenefitCategory] : undefined,
-    statuses: BENEFIT_STATUSES.includes(status as BenefitStatus) ? [status as BenefitStatus] : undefined,
+    categories: BENEFIT_CATEGORIES.includes(category as BenefitCategory)
+      ? [category as BenefitCategory]
+      : undefined,
+    statuses: BENEFIT_STATUSES.includes(status as BenefitStatus)
+      ? [status as BenefitStatus]
+      : undefined,
     merchant: merchant || undefined,
     expiringWithinDays: expiring ? Number(expiring) : undefined,
     onlyArchived: view === 'archived',
@@ -50,7 +59,16 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
 
   const qs = (patch: Record<string, string>) => {
     const params = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q, category, status, merchant, expiring, view, sort, ...patch })) {
+    for (const [k, v] of Object.entries({
+      q,
+      category,
+      status,
+      merchant,
+      expiring,
+      view,
+      sort,
+      ...patch,
+    })) {
       if (v) params.set(k, String(v));
     }
     return `/app/benefits?${params.toString()}`;
@@ -61,7 +79,11 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
       <PageHeader
         title="Benefits"
         description={`${total} ${total === 1 ? 'record' : 'records'} match the filters below.`}
-        action={<LinkButton href="/app/benefits/new" size="sm">Add benefit</LinkButton>}
+        action={
+          <LinkButton href="/app/benefits/new" size="sm">
+            Add benefit
+          </LinkButton>
+        }
       />
 
       <Card className="mb-5 p-3 sm:p-4">
@@ -166,8 +188,8 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
 
       {shared.length > 0 ? (
         <Alert tone="info" className="mb-4">
-          {shared.length === 1 ? 'One record is' : `${shared.length} records are`} shared with you by someone in
-          your household. They appear in this list with a badge.
+          {shared.length === 1 ? 'One record is' : `${shared.length} records are`} shared with you
+          by someone in your household. They appear in this list with a badge.
         </Alert>
       ) : null}
 
@@ -181,7 +203,11 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
                 ? 'Try widening the search, or clear the filters to see everything.'
                 : 'Add a gift card, a store credit or anything else you have already paid for.'
             }
-            action={<LinkButton href="/app/benefits/new" size="sm">Add a benefit</LinkButton>}
+            action={
+              <LinkButton href="/app/benefits/new" size="sm">
+                Add a benefit
+              </LinkButton>
+            }
           />
         ) : (
           <ul className="divide-y divide-[var(--border)]">
@@ -193,7 +219,9 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
                   benefit={b}
                   today={today}
                   prefs={prefs}
-                  shared={s ? { householdName: s.household.name, permission: s.permission } : undefined}
+                  shared={
+                    s ? { householdName: s.household.name, permission: s.permission } : undefined
+                  }
                 />
               );
             })}
@@ -204,7 +232,10 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
       {pages > 1 ? (
         <nav aria-label="Pagination" className="mt-4 flex items-center justify-between text-sm">
           {page > 1 ? (
-            <Link className="text-[var(--accent)] hover:underline" href={qs({ page: String(page - 1) })}>
+            <Link
+              className="text-[var(--accent)] hover:underline"
+              href={qs({ page: String(page - 1) })}
+            >
               ← Previous
             </Link>
           ) : (
@@ -214,7 +245,10 @@ export default async function BenefitsPage({ searchParams }: { searchParams: Pro
             Page {page} of {pages}
           </span>
           {page < pages ? (
-            <Link className="text-[var(--accent)] hover:underline" href={qs({ page: String(page + 1) })}>
+            <Link
+              className="text-[var(--accent)] hover:underline"
+              href={qs({ page: String(page + 1) })}
+            >
               Next →
             </Link>
           ) : (

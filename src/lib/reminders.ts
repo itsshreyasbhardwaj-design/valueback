@@ -19,9 +19,7 @@ export function parseOffsets(json: string): number[] {
   try {
     const v: unknown = JSON.parse(json);
     if (!Array.isArray(v)) return DEFAULT_OFFSETS;
-    const nums = v
-      .map(Number)
-      .filter((n) => Number.isInteger(n) && n >= 0 && n <= 365);
+    const nums = v.map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 365);
     return nums.length ? [...new Set(nums)].sort((a, b) => b - a) : DEFAULT_OFFSETS;
   } catch {
     return DEFAULT_OFFSETS;
@@ -53,7 +51,13 @@ function upsertReminder(row: {
  */
 export function syncExpiryReminders(
   userId: string,
-  benefit: { id: string; title: string; expiresAt: string | null; archivedAt: string | null; status: string },
+  benefit: {
+    id: string;
+    title: string;
+    expiresAt: string | null;
+    archivedAt: string | null;
+    status: string;
+  },
   offsets: number[],
   today = todayIso(),
 ): void {
@@ -70,7 +74,12 @@ export function syncExpiryReminders(
     .all();
   if (stale.length) {
     db.delete(reminders)
-      .where(inArray(reminders.id, stale.map((s) => s.id)))
+      .where(
+        inArray(
+          reminders.id,
+          stale.map((s) => s.id),
+        ),
+      )
       .run();
   }
 
@@ -95,11 +104,24 @@ export function syncExpiryReminders(
 /** One rolling check-in for an open refund case. */
 export function syncRefundCheckIn(
   userId: string,
-  rc: { id: string; merchant: string; status: string; expectedByDate: string | null; archivedAt: string | null },
+  rc: {
+    id: string;
+    merchant: string;
+    status: string;
+    expectedByDate: string | null;
+    archivedAt: string | null;
+  },
   checkInDays: number,
   today = todayIso(),
 ): void {
-  const open = ['requested', 'accepted', 'initiated', 'awaiting_receipt', 'partially_received', 'disputed'];
+  const open = [
+    'requested',
+    'accepted',
+    'initiated',
+    'awaiting_receipt',
+    'partially_received',
+    'disputed',
+  ];
   const stale = db
     .select({ id: reminders.id })
     .from(reminders)
@@ -112,14 +134,23 @@ export function syncRefundCheckIn(
     )
     .all();
   if (stale.length) {
-    db.delete(reminders).where(inArray(reminders.id, stale.map((s) => s.id))).run();
+    db.delete(reminders)
+      .where(
+        inArray(
+          reminders.id,
+          stale.map((s) => s.id),
+        ),
+      )
+      .run();
   }
   if (rc.archivedAt || !open.includes(rc.status)) return;
 
-  const dueAt =
-    rc.expectedByDate && daysBetween(today, rc.expectedByDate) >= 0
+  // A window that has already passed deserves a nudge now, not in a week.
+  const dueAt = rc.expectedByDate
+    ? daysBetween(today, rc.expectedByDate) >= 0
       ? addDays(rc.expectedByDate, 1)
-      : addDays(today, Math.max(1, checkInDays));
+      : today
+    : addDays(today, Math.max(1, checkInDays));
   upsertReminder({
     userId,
     refundCaseId: rc.id,
@@ -205,20 +236,27 @@ export function upcomingReminders(userId: string, withinDays = 60, today = today
 
 /**
  * Fire every reminder that is due and has not already produced a notification.
- * Safe to run repeatedly: notifications carry a unique (user, dedupe_key).
- * Returns how many notifications were actually created.
+ *
+ * Safe to run repeatedly: notifications carry a unique (user, dedupe_key), so a
+ * second run on the same day creates nothing. Pass `userId` to process one
+ * account — the in-app sweep does, so using the app never fires notifications
+ * for a different account on the same installation. The CLI runs it unscoped.
  */
-export function runDueReminders(today = todayIso()): { fired: number; scanned: number } {
+export function runDueReminders(
+  today = todayIso(),
+  userId?: string,
+): { fired: number; scanned: number } {
+  const conditions = [
+    inArray(reminders.status, ['scheduled', 'snoozed'] as const),
+    lte(reminders.dueAt, today),
+    or(isNull(reminders.snoozedUntil), lte(reminders.snoozedUntil, today)),
+  ];
+  if (userId) conditions.push(eq(reminders.userId, userId));
+
   const due = db
     .select()
     .from(reminders)
-    .where(
-      and(
-        inArray(reminders.status, ['scheduled', 'snoozed']),
-        lte(reminders.dueAt, today),
-        or(isNull(reminders.snoozedUntil), lte(reminders.snoozedUntil, today)),
-      ),
-    )
+    .where(and(...conditions))
     .all();
 
   let fired = 0;
@@ -229,7 +267,10 @@ export function runDueReminders(today = todayIso()): { fired: number; scanned: n
       .where(eq(userSettings.userId, r.userId))
       .get();
     if (inApp && inApp.v === false) {
-      db.update(reminders).set({ status: 'fired', lastFiredAt: today }).where(eq(reminders.id, r.id)).run();
+      db.update(reminders)
+        .set({ status: 'fired', lastFiredAt: today })
+        .where(eq(reminders.id, r.id))
+        .run();
       continue;
     }
 
@@ -276,7 +317,11 @@ function reminderBody(r: typeof reminders.$inferSelect): string {
   }
   if (r.refundCaseId) {
     const rc = db
-      .select({ merchant: refundCases.merchant, amount: refundCases.amountMinor, currency: refundCases.currency })
+      .select({
+        merchant: refundCases.merchant,
+        amount: refundCases.amountMinor,
+        currency: refundCases.currency,
+      })
       .from(refundCases)
       .where(eq(refundCases.id, r.refundCaseId))
       .get();

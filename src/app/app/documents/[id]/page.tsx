@@ -54,13 +54,29 @@ export default async function DocumentReviewPage({
   const looksLikeRefund = classification === 'refund_case';
   const currency = fields.currency?.value ?? user.settings.currency;
 
-  const proposals: Array<{ label: string; display: string; confidence: Confidence; evidence: string }> = [];
-  const push = (label: string, value: string | undefined, p?: { confidence: Confidence; evidence: string }) => {
-    if (value && p) proposals.push({ label, display: value, confidence: p.confidence, evidence: p.evidence });
+  const proposals: Array<{
+    label: string;
+    display: string;
+    confidence: Confidence;
+    evidence: string;
+  }> = [];
+  const push = (
+    label: string,
+    value: string | undefined,
+    p?: { confidence: Confidence; evidence: string },
+  ) => {
+    if (value && p)
+      proposals.push({ label, display: value, confidence: p.confidence, evidence: p.evidence });
   };
   push('Title', fields.title?.value, fields.title);
   push('Merchant', fields.merchant?.value, fields.merchant);
-  push('Amount', fields.amountMinor ? `${currency} ${minorToDecimalString(fields.amountMinor.value, currency)}` : undefined, fields.amountMinor);
+  push(
+    'Amount',
+    fields.amountMinor
+      ? `${currency} ${minorToDecimalString(fields.amountMinor.value, currency)}`
+      : undefined,
+    fields.amountMinor,
+  );
   push('Currency', fields.currency?.value, fields.currency);
   push('Order reference', fields.orderRef?.value, fields.orderRef);
   push('Issued on', fields.issuedAt?.value, fields.issuedAt);
@@ -93,7 +109,9 @@ export default async function DocumentReviewPage({
     category: classification && classification !== 'refund_case' ? classification : 'gift_card',
     merchant: fields.merchant?.value?.slice(0, 80) ?? '',
     currency,
-    originalValue: fields.amountMinor ? minorToDecimalString(fields.amountMinor.value, currency) : '',
+    originalValue: fields.amountMinor
+      ? minorToDecimalString(fields.amountMinor.value, currency)
+      : '',
     currentValue: '',
     unitLabel: '',
     units: '',
@@ -177,8 +195,8 @@ export default async function DocumentReviewPage({
             ) : proposals.length === 0 ? (
               <div className="p-4 sm:p-5">
                 <Alert tone="neutral" title="Text was read, but nothing recognisable was found">
-                  No amounts, dates or references matched the parsing rules. Fill the form in by hand —
-                  the document stays attached as evidence.
+                  No amounts, dates or references matched the parsing rules. Fill the form in by
+                  hand — the document stays attached as evidence.
                 </Alert>
               </div>
             ) : (
@@ -191,7 +209,10 @@ export default async function DocumentReviewPage({
                         <span className="font-medium">{p.display}</span>
                       </div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                        <Badge tone={CONFIDENCE_TONE[p.confidence]} title={confidenceNote(p.confidence)}>
+                        <Badge
+                          tone={CONFIDENCE_TONE[p.confidence]}
+                          title={confidenceNote(p.confidence)}
+                        >
                           {p.confidence} confidence
                         </Badge>
                         <span className="text-xs text-[var(--text-faint)]">“{p.evidence}”</span>
@@ -200,8 +221,8 @@ export default async function DocumentReviewPage({
                   ))}
                 </ul>
                 <p className="border-t border-[var(--border)] px-4 py-2.5 text-xs text-[var(--text-faint)] sm:px-5">
-                  Confidence is a label, not a probability. It reflects how clearly the value was labelled
-                  in the document — nothing more.
+                  Confidence is a label, not a probability. It reflects how clearly the value was
+                  labelled in the document — nothing more.
                 </p>
               </>
             )}
@@ -210,7 +231,8 @@ export default async function DocumentReviewPage({
           {result && result.classificationReasons.length > 0 ? (
             <Card className="p-4">
               <p className="flex items-center gap-2 text-sm font-semibold">
-                <ScanLine size={15} className="text-[var(--accent)]" aria-hidden /> Why it was classified this way
+                <ScanLine size={15} className="text-[var(--accent)]" aria-hidden /> Why it was
+                classified this way
               </p>
               <ul className="mt-2 space-y-1 text-[0.8125rem] text-[var(--text-muted)]">
                 {result.classificationReasons.map((r) => (
@@ -223,7 +245,8 @@ export default async function DocumentReviewPage({
           {result ? (
             <Card className="p-4">
               <p className="flex items-center gap-2 text-sm font-semibold">
-                <Lightbulb size={15} className="text-[var(--accent)]" aria-hidden /> Suggested next steps
+                <Lightbulb size={15} className="text-[var(--accent)]" aria-hidden /> Suggested next
+                steps
               </p>
               <ul className="mt-2 space-y-1 text-[0.8125rem] text-[var(--text-muted)]">
                 {suggestedActions(result).map((s) => (
@@ -234,12 +257,23 @@ export default async function DocumentReviewPage({
           ) : null}
 
           <Card>
-            <CardHeader title="Create a record from this" description="You can also just keep the file as evidence." />
+            <CardHeader
+              title="Create a record from this"
+              description="You can also just keep the file as evidence."
+            />
             <div className="flex flex-wrap gap-2 p-4">
-              <LinkButton href={`/app/documents/${doc.id}?as=benefit`} size="sm" variant={as === 'benefit' ? 'primary' : 'secondary'}>
+              <LinkButton
+                href={`/app/documents/${doc.id}?as=benefit`}
+                size="sm"
+                variant={as === 'benefit' ? 'primary' : 'secondary'}
+              >
                 Create a benefit
               </LinkButton>
-              <LinkButton href={`/app/documents/${doc.id}?as=refund`} size="sm" variant={as === 'refund' ? 'primary' : 'secondary'}>
+              <LinkButton
+                href={`/app/documents/${doc.id}?as=refund`}
+                size="sm"
+                variant={as === 'refund' ? 'primary' : 'secondary'}
+              >
                 Create a refund case
               </LinkButton>
               {as ? (
@@ -250,7 +284,8 @@ export default async function DocumentReviewPage({
             </div>
             {!as && looksLikeRefund ? (
               <p className="px-4 pb-4 text-[0.8125rem] text-[var(--text-muted)]">
-                The wording points at a refund. “Create a refund case” sets up the follow-up tracking.
+                The wording points at a refund. “Create a refund case” sets up the follow-up
+                tracking.
               </p>
             ) : null}
           </Card>
@@ -272,14 +307,22 @@ export default async function DocumentReviewPage({
           {as === 'refund' ? (
             <div>
               <h2 className="mb-3 text-base font-semibold">Check these values, then save</h2>
-              <RefundForm action={createRefundAction} initial={refundPrefill} mode="create" documentId={doc.id} />
+              <RefundForm
+                action={createRefundAction}
+                initial={refundPrefill}
+                mode="create"
+                documentId={doc.id}
+              />
             </div>
           ) : null}
         </div>
 
         <div className="space-y-5 lg:col-span-2">
           <Card>
-            <CardHeader title="The document" description={`${doc.mime} · ${(doc.sizeBytes / 1024).toFixed(0)} KB`} />
+            <CardHeader
+              title="The document"
+              description={`${doc.mime} · ${(doc.sizeBytes / 1024).toFixed(0)} KB`}
+            />
             <div className="p-4">
               {doc.mime.startsWith('image/') ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
@@ -289,7 +332,11 @@ export default async function DocumentReviewPage({
                   className="max-h-96 w-full rounded-lg border border-[var(--border)] object-contain"
                 />
               ) : doc.mime === 'application/pdf' ? (
-                <object data={`/api/documents/${doc.id}/file`} type="application/pdf" className="h-96 w-full rounded-lg border border-[var(--border)]">
+                <object
+                  data={`/api/documents/${doc.id}/file`}
+                  type="application/pdf"
+                  className="h-96 w-full rounded-lg border border-[var(--border)]"
+                >
                   <p className="p-4 text-sm text-[var(--text-muted)]">
                     Your browser cannot display this PDF inline.{' '}
                     <a href={`/api/documents/${doc.id}/file`} className="underline">
@@ -341,7 +388,10 @@ export default async function DocumentReviewPage({
           </Card>
 
           <Card>
-            <CardHeader title="Remove" action={<FileWarning size={15} className="text-[var(--text-faint)]" aria-hidden />} />
+            <CardHeader
+              title="Remove"
+              action={<FileWarning size={15} className="text-[var(--text-faint)]" aria-hidden />}
+            />
             <DeleteDocumentPanel documentId={doc.id} />
           </Card>
         </div>

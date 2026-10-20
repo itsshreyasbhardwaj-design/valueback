@@ -9,7 +9,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <Wordmark />
         <ThemeToggle compact />
       </header>
-      <main id="main" className="flex flex-1 items-start justify-center px-4 py-6 sm:items-center sm:py-10">
+      <main
+        id="main"
+        className="flex flex-1 items-start justify-center px-4 py-6 sm:items-center sm:py-10"
+      >
         <div className="w-full max-w-md">{children}</div>
       </main>
       <footer className="px-4 py-5 text-center text-xs text-[var(--text-faint)]">

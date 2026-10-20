@@ -28,7 +28,9 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
 
   const { rows, total, pages } = listRefundCases(user.id, {
     q: q || undefined,
-    statuses: REFUND_STATUSES.includes(status as RefundStatus) ? [status as RefundStatus] : undefined,
+    statuses: REFUND_STATUSES.includes(status as RefundStatus)
+      ? [status as RefundStatus]
+      : undefined,
     onlyOpen: view === 'open',
     includeArchived: view === 'all',
     sort,
@@ -44,7 +46,11 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
       <PageHeader
         title="RefundWatch"
         description={`${total} ${total === 1 ? 'case' : 'cases'} match these filters. Money only counts as recovered once you confirm it arrived.`}
-        action={<LinkButton href="/app/refunds/new" size="sm">Track a refund</LinkButton>}
+        action={
+          <LinkButton href="/app/refunds/new" size="sm">
+            Track a refund
+          </LinkButton>
+        }
       />
 
       <Card className="mb-5 p-3 sm:p-4">
@@ -53,7 +59,14 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
             <label className="vb-label" htmlFor="q">
               Search
             </label>
-            <input id="q" name="q" type="search" defaultValue={q} placeholder="Merchant, order, notes" className="vb-input" />
+            <input
+              id="q"
+              name="q"
+              type="search"
+              defaultValue={q}
+              placeholder="Merchant, order, notes"
+              className="vb-input"
+            />
           </div>
           <div>
             <label className="vb-label" htmlFor="status">
@@ -89,7 +102,10 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
             </select>
           </div>
           <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-4">
-            <button type="submit" className="min-h-[2.5rem] rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-contrast)]">
+            <button
+              type="submit"
+              className="min-h-[2.5rem] rounded-lg bg-[var(--accent)] px-4 text-sm font-medium text-[var(--accent-contrast)]"
+            >
               Apply filters
             </button>
             <Link href="/app/refunds" className="text-sm text-[var(--text-muted)] hover:underline">
@@ -109,7 +125,11 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
                 ? 'Try clearing the filters.'
                 : 'Open a case when you return something or cancel an order, and the follow-up date gets watched for you.'
             }
-            action={<LinkButton href="/app/refunds/new" size="sm">Track a refund</LinkButton>}
+            action={
+              <LinkButton href="/app/refunds/new" size="sm">
+                Track a refund
+              </LinkButton>
+            }
           />
         ) : (
           <ul className="divide-y divide-[var(--border)]">
@@ -119,7 +139,11 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
                 refundCase={r}
                 today={today}
                 prefs={prefs}
-                shared={sharedById.has(r.id) ? { householdName: sharedById.get(r.id)!.household.name } : undefined}
+                shared={
+                  sharedById.has(r.id)
+                    ? { householdName: sharedById.get(r.id)!.household.name }
+                    : undefined
+                }
               />
             ))}
           </ul>
@@ -129,7 +153,10 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
       {pages > 1 ? (
         <nav aria-label="Pagination" className="mt-4 flex items-center justify-between text-sm">
           {page > 1 ? (
-            <Link className="text-[var(--accent)] hover:underline" href={`/app/refunds?view=${view}&page=${page - 1}`}>
+            <Link
+              className="text-[var(--accent)] hover:underline"
+              href={`/app/refunds?view=${view}&page=${page - 1}`}
+            >
               ← Previous
             </Link>
           ) : (
@@ -139,7 +166,10 @@ export default async function RefundsPage({ searchParams }: { searchParams: Prom
             Page {page} of {pages}
           </span>
           {page < pages ? (
-            <Link className="text-[var(--accent)] hover:underline" href={`/app/refunds?view=${view}&page=${page + 1}`}>
+            <Link
+              className="text-[var(--accent)] hover:underline"
+              href={`/app/refunds?view=${view}&page=${page + 1}`}
+            >
               Next →
             </Link>
           ) : (

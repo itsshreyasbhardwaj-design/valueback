@@ -43,7 +43,9 @@ export const OUTSTANDING_STATUSES: BenefitStatus[] = ['unverified', 'available',
  * underlying right may survive it. It only raises a flag in the UI.
  */
 export function isPastRecordedExpiry(b: Pick<Benefit, 'expiresAt' | 'status'>, today = todayIso()) {
-  return Boolean(b.expiresAt && daysBetween(today, b.expiresAt) < 0 && OUTSTANDING_STATUSES.includes(b.status));
+  return Boolean(
+    b.expiresAt && daysBetween(today, b.expiresAt) < 0 && OUTSTANDING_STATUSES.includes(b.status),
+  );
 }
 
 export type CreateBenefitInput = {
@@ -134,8 +136,18 @@ export function createBenefit(input: CreateBenefitInput): Benefit {
 export type UpdateBenefitInput = Partial<
   Pick<
     Benefit,
-    | 'title' | 'category' | 'merchant' | 'unitLabel' | 'issuedAt' | 'receivedAt'
-    | 'expiresAt' | 'conditions' | 'notes' | 'recurrence' | 'recurrenceUnits' | 'recurrenceAnchor'
+    | 'title'
+    | 'category'
+    | 'merchant'
+    | 'unitLabel'
+    | 'issuedAt'
+    | 'receivedAt'
+    | 'expiresAt'
+    | 'conditions'
+    | 'notes'
+    | 'recurrence'
+    | 'recurrenceUnits'
+    | 'recurrenceAnchor'
   >
 > & { tags?: string[]; code?: string | null; clearCode?: boolean };
 
@@ -151,8 +163,18 @@ export function updateBenefit(
 ): Benefit {
   const set: Partial<typeof benefits.$inferInsert> = { updatedAt: nowIso() };
   for (const k of [
-    'title', 'category', 'merchant', 'unitLabel', 'issuedAt', 'receivedAt',
-    'expiresAt', 'conditions', 'notes', 'recurrence', 'recurrenceUnits', 'recurrenceAnchor',
+    'title',
+    'category',
+    'merchant',
+    'unitLabel',
+    'issuedAt',
+    'receivedAt',
+    'expiresAt',
+    'conditions',
+    'notes',
+    'recurrence',
+    'recurrenceUnits',
+    'recurrenceAnchor',
   ] as const) {
     if (patch[k] !== undefined) (set as Record<string, unknown>)[k] = patch[k];
   }
@@ -175,8 +197,22 @@ export function updateBenefit(
 }
 
 export type BalanceChange =
-  | { type: 'usage'; amountMinor?: number | null; units?: number | null; reason: string; occurredAt: string; documentId?: string | null }
-  | { type: 'correction' | 'verified_update'; newValueMinor?: number | null; newUnits?: number | null; reason: string; occurredAt: string; documentId?: string | null }
+  | {
+      type: 'usage';
+      amountMinor?: number | null;
+      units?: number | null;
+      reason: string;
+      occurredAt: string;
+      documentId?: string | null;
+    }
+  | {
+      type: 'correction' | 'verified_update';
+      newValueMinor?: number | null;
+      newUnits?: number | null;
+      reason: string;
+      occurredAt: string;
+      documentId?: string | null;
+    }
   | { type: 'redeemed'; reason: string; occurredAt: string; documentId?: string | null }
   | { type: 'revalidation'; newExpiresAt: string | null; reason: string; occurredAt: string };
 
@@ -211,10 +247,12 @@ export function recordBalanceEvent(
     case 'usage': {
       const amt = change.amountMinor ?? null;
       const u = change.units ?? null;
-      if (amt == null && u == null) return { ok: false, error: 'Enter an amount or a number of units.' };
+      if (amt == null && u == null)
+        return { ok: false, error: 'Enter an amount or a number of units.' };
       if (amt != null) {
         if (amt <= 0) return { ok: false, error: 'Usage must be greater than zero.' };
-        if (cur == null) return { ok: false, error: 'This record has no monetary balance to reduce.' };
+        if (cur == null)
+          return { ok: false, error: 'This record has no monetary balance to reduce.' };
         if (amt > cur) return { ok: false, error: 'That is more than the remaining balance.' };
         nextValue = cur - amt;
         deltaMinor = -amt;
@@ -227,7 +265,8 @@ export function recordBalanceEvent(
         deltaUnits = -u;
       }
       recovery = { amountMinor: amt ?? undefined, units: u ?? undefined };
-      const exhausted = (nextValue == null || nextValue === 0) && (nextUnits == null || nextUnits === 0);
+      const exhausted =
+        (nextValue == null || nextValue === 0) && (nextUnits == null || nextUnits === 0);
       nextStatus = exhausted ? 'redeemed' : 'partially_used';
       break;
     }
@@ -252,7 +291,8 @@ export function recordBalanceEvent(
     case 'verified_update': {
       const nv = change.newValueMinor;
       const nu = change.newUnits;
-      if (nv === undefined && nu === undefined) return { ok: false, error: 'Enter the corrected balance.' };
+      if (nv === undefined && nu === undefined)
+        return { ok: false, error: 'Enter the corrected balance.' };
       if (nv !== undefined && nv !== null) {
         if (nv < 0) return { ok: false, error: 'A balance cannot be negative.' };
         nextValue = nv;
@@ -263,7 +303,8 @@ export function recordBalanceEvent(
         nextUnits = nu;
         deltaUnits = nu - (curUnits ?? 0);
       }
-      const empty = (nextValue == null || nextValue === 0) && (nextUnits == null || nextUnits === 0);
+      const empty =
+        (nextValue == null || nextValue === 0) && (nextUnits == null || nextUnits === 0);
       if (change.type === 'verified_update') {
         verifiedAt = change.occurredAt;
         nextEvidence = 'reverified';
@@ -272,7 +313,9 @@ export function recordBalanceEvent(
       }
       nextStatus = empty
         ? 'redeemed'
-        : benefit.status === 'redeemed' || benefit.status === 'expired_per_terms' || benefit.status === 'unverified'
+        : benefit.status === 'redeemed' ||
+            benefit.status === 'expired_per_terms' ||
+            benefit.status === 'unverified'
           ? 'available'
           : benefit.status;
       break;
@@ -402,7 +445,10 @@ export function benefitHistory(benefitId: string): BalanceEvent[] {
 }
 
 /** Ledger truth, used by tests and by the integrity check in the settings page. */
-export function recomputeBalanceFromLedger(benefitId: string): { value: number | null; units: number | null } {
+export function recomputeBalanceFromLedger(benefitId: string): {
+  value: number | null;
+  units: number | null;
+} {
   const rows = db
     .select()
     .from(balanceEvents)
@@ -484,7 +530,12 @@ export function listBenefits(userId: string, f: BenefitFilters = {}) {
     .offset((page - 1) * pageSize)
     .all();
 
-  const total = db.select({ n: count() }).from(benefits).where(and(...where)).get()?.n ?? 0;
+  const total =
+    db
+      .select({ n: count() })
+      .from(benefits)
+      .where(and(...where))
+      .get()?.n ?? 0;
   return { rows, total, page, pageSize, pages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 

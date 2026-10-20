@@ -4,7 +4,9 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import * as schema from './schema';
 
-export const DB_PATH = resolve(/* turbopackIgnore: true */ process.env.DATABASE_URL ?? './data/valueback.db');
+export const DB_PATH = resolve(
+  /* turbopackIgnore: true */ process.env.DATABASE_URL ?? './data/valueback.db',
+);
 
 function connect() {
   mkdirSync(dirname(DB_PATH), { recursive: true });

@@ -1,12 +1,24 @@
 import type { Metadata } from 'next';
 import {
-  BellRing, Copy, FileSearch, FolderDown, Gauge, Globe, Lock, Scale, Search, Users, Wallet, RotateCcw,
+  BellRing,
+  Copy,
+  FileSearch,
+  FolderDown,
+  Gauge,
+  Globe,
+  Lock,
+  Scale,
+  Search,
+  Users,
+  Wallet,
+  RotateCcw,
 } from 'lucide-react';
 import { Card, LinkButton } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: 'Features',
-  description: 'Everything ValueBack does today: benefit tracking, refund cases, local document reading, reminders, analytics and household sharing.',
+  description:
+    'Everything ValueBack does today: benefit tracking, refund cases, local document reading, reminders, analytics and household sharing.',
 };
 
 const GROUPS = [
@@ -110,8 +122,8 @@ export default function FeaturesPage() {
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <h1 className="text-3xl font-semibold">Features</h1>
       <p className="mt-3 max-w-2xl text-[var(--text-muted)]">
-        Everything listed here is implemented in this build. Where something depends on a service that is
-        not connected, it says so rather than pretending.
+        Everything listed here is implemented in this build. Where something depends on a service
+        that is not connected, it says so rather than pretending.
       </p>
 
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
@@ -141,16 +153,34 @@ export default function FeaturesPage() {
           <div>
             <h2 className="text-lg font-semibold">Not available in this build</h2>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
-              These need an external service. Rather than fake them, ValueBack leaves them off and says so
-              in the interface where you would expect them.
+              These need an external service. Rather than fake them, ValueBack leaves them off and
+              says so in the interface where you would expect them.
             </p>
             <ul className="mt-3 grid gap-1.5 text-[0.8125rem] text-[var(--text-muted)] sm:grid-cols-2">
-              <li className="flex gap-2"><Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> Email: no verification mail, no password-reset link, no sending your follow-up for you.</li>
-              <li className="flex gap-2"><Copy size={14} className="mt-0.5 shrink-0" aria-hidden /> Follow-ups are copied to your clipboard and sent by you.</li>
-              <li className="flex gap-2"><Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No merchant, bank or loyalty connections, so no live balance checks.</li>
-              <li className="flex gap-2"><Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No payments: plans exist as an entitlement model, not a checkout.</li>
-              <li className="flex gap-2"><BellRing size={14} className="mt-0.5 shrink-0" aria-hidden /> No push notifications once the app is closed — reminders need the app or the scheduler running.</li>
-              <li className="flex gap-2"><Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No account recovery by email. Recovery codes you save yourself are the only route back in.</li>
+              <li className="flex gap-2">
+                <Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> Email: no verification
+                mail, no password-reset link, no sending your follow-up for you.
+              </li>
+              <li className="flex gap-2">
+                <Copy size={14} className="mt-0.5 shrink-0" aria-hidden /> Follow-ups are copied to
+                your clipboard and sent by you.
+              </li>
+              <li className="flex gap-2">
+                <Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No merchant, bank or
+                loyalty connections, so no live balance checks.
+              </li>
+              <li className="flex gap-2">
+                <Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No payments: plans exist
+                as an entitlement model, not a checkout.
+              </li>
+              <li className="flex gap-2">
+                <BellRing size={14} className="mt-0.5 shrink-0" aria-hidden /> No push notifications
+                once the app is closed — reminders need the app or the scheduler running.
+              </li>
+              <li className="flex gap-2">
+                <Globe size={14} className="mt-0.5 shrink-0" aria-hidden /> No account recovery by
+                email. Recovery codes you save yourself are the only route back in.
+              </li>
             </ul>
           </div>
         </div>
@@ -158,7 +188,9 @@ export default function FeaturesPage() {
 
       <div className="mt-10 flex flex-wrap gap-3">
         <LinkButton href="/signup">Start tracking for free</LinkButton>
-        <LinkButton href="/how-it-works" variant="secondary">See how it works</LinkButton>
+        <LinkButton href="/how-it-works" variant="secondary">
+          See how it works
+        </LinkButton>
       </div>
     </div>
   );

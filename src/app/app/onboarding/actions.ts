@@ -14,7 +14,11 @@ import { nowIso } from '@/lib/dates';
 import { audit } from '@/lib/audit';
 import { benefitSchema, fieldErrors, formObject, type FormState } from '@/lib/validation';
 
-function setStep(userId: string, step: number, extra: Partial<typeof userSettings.$inferInsert> = {}) {
+function setStep(
+  userId: string,
+  step: number,
+  extra: Partial<typeof userSettings.$inferInsert> = {},
+) {
   db.update(userSettings)
     .set({ onboardingStep: step, updatedAt: nowIso(), ...extra })
     .where(eq(userSettings.userId, userId))
@@ -37,7 +41,10 @@ export async function saveInterestsAction(_prev: FormState, fd: FormData): Promi
     .filter((v): v is BenefitCategory => BENEFIT_CATEGORIES.includes(v as BenefitCategory));
   setStep(user.id, 3, { onboardingInterests: JSON.stringify(picked) });
   revalidatePath('/app/onboarding');
-  return { ok: true, message: picked.length ? 'Saved.' : 'Skipped — you can track anything later.' };
+  return {
+    ok: true,
+    message: picked.length ? 'Saved.' : 'Skipped — you can track anything later.',
+  };
 }
 
 /** Minimal create used only inside onboarding, so the flow is not interrupted. */
@@ -51,7 +58,8 @@ export async function quickAddBenefitAction(_prev: FormState, fd: FormData): Pro
   if (!limit.allowed) return { ok: false, errors: { _form: limit.message! } };
 
   const value = d.originalValue ? parseMoneyToMinor(d.originalValue, d.currency) : null;
-  if (d.originalValue && value == null) return { ok: false, errors: { originalValue: 'Enter a valid amount.' } };
+  if (d.originalValue && value == null)
+    return { ok: false, errors: { originalValue: 'Enter a valid amount.' } };
 
   const created = createBenefit({
     userId: user.id,

@@ -1,25 +1,27 @@
 'use client';
 
 import { Monitor, Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type Theme = 'system' | 'light' | 'dark';
 const ORDER: Theme[] = ['system', 'light', 'dark'];
 const ICON = { system: Monitor, light: Sun, dark: Moon };
 const LABEL = { system: 'Match system', light: 'Light', dark: 'Dark' };
 
-function readCookie(): Theme {
-  const m = /(?:^|;\s*)vb_theme=(system|light|dark)/.exec(document.cookie);
-  return (m?.[1] as Theme) ?? 'system';
-}
-
 /**
  * Writes a cookie so the server can render the right palette on the next
  * request, and flips the attribute immediately so this one does not flash.
  */
-export function ThemeToggle({ compact = false }: { compact?: boolean }) {
-  const [theme, setTheme] = useState<Theme>('system');
-  useEffect(() => setTheme(readCookie()), []);
+export function ThemeToggle({
+  compact = false,
+  initial = 'system',
+}: {
+  compact?: boolean;
+  initial?: Theme;
+}) {
+  // The server already knows the preference from the cookie, so it arrives as a
+  // prop — no effect, no second render, no flash of the wrong icon.
+  const [theme, setTheme] = useState<Theme>(initial);
 
   function apply(next: Theme) {
     setTheme(next);

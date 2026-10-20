@@ -4,7 +4,7 @@ import { and, desc, eq, isNull, inArray, gte, isNotNull, lte, asc } from 'drizzl
 import { ArrowRight, BellRing, CheckCircle2, Inbox, Wallet } from 'lucide-react';
 import { requireUser } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { benefits, recoveryEvents, refundCases } from '@/lib/db/schema';
+import { benefits, refundCases } from '@/lib/db/schema';
 import { visibleBenefitWhere, visibleRefundWhere } from '@/lib/authz';
 import { OUTSTANDING_STATUSES } from '@/lib/benefits';
 import { OPEN_REFUND_STATUSES } from '@/lib/refunds';
@@ -31,18 +31,38 @@ export default async function DashboardPage() {
   const outstandingBenefits = db
     .select()
     .from(benefits)
-    .where(and(visibleBenefitWhere(user.id), isNull(benefits.archivedAt), inArray(benefits.status, OUTSTANDING_STATUSES)))
+    .where(
+      and(
+        visibleBenefitWhere(user.id),
+        isNull(benefits.archivedAt),
+        inArray(benefits.status, OUTSTANDING_STATUSES),
+      ),
+    )
     .all();
 
   const openRefunds = db
     .select()
     .from(refundCases)
-    .where(and(visibleRefundWhere(user.id), isNull(refundCases.archivedAt), inArray(refundCases.status, OPEN_REFUND_STATUSES)))
+    .where(
+      and(
+        visibleRefundWhere(user.id),
+        isNull(refundCases.archivedAt),
+        inArray(refundCases.status, OPEN_REFUND_STATUSES),
+      ),
+    )
     .all();
 
   const attention = [
-    ...outstandingBenefits.map((b) => ({ kind: 'benefit' as const, record: b, priority: scoreBenefit(b, today) })),
-    ...openRefunds.map((r) => ({ kind: 'refund' as const, record: r, priority: scoreRefund(r, today) })),
+    ...outstandingBenefits.map((b) => ({
+      kind: 'benefit' as const,
+      record: b,
+      priority: scoreBenefit(b, today),
+    })),
+    ...openRefunds.map((r) => ({
+      kind: 'refund' as const,
+      record: r,
+      priority: scoreRefund(r, today),
+    })),
   ]
     .filter((x) => x.priority.score >= 20)
     .sort((a, b) => b.priority.score - a.priority.score)
@@ -78,8 +98,14 @@ export default async function DashboardPage() {
   const reminders = upcomingReminders(user.id, 30, today).slice(0, 5);
   const totalRecords = outstandingBenefits.length + openRefunds.length;
   const isEmpty =
-    db.select({ id: benefits.id }).from(benefits).where(eq(benefits.userId, user.id)).limit(1).all().length === 0 &&
-    db.select({ id: refundCases.id }).from(refundCases).where(eq(refundCases.userId, user.id)).limit(1).all().length === 0;
+    db.select({ id: benefits.id }).from(benefits).where(eq(benefits.userId, user.id)).limit(1).all()
+      .length === 0 &&
+    db
+      .select({ id: refundCases.id })
+      .from(refundCases)
+      .where(eq(refundCases.userId, user.id))
+      .limit(1)
+      .all().length === 0;
 
   if (isEmpty) {
     return (
@@ -143,14 +169,34 @@ export default async function DashboardPage() {
           Overview
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard metric={m.metric('available_reported')} currency={prefs.currency} href="/app/benefits" />
+          <MetricCard
+            metric={m.metric('available_reported')}
+            currency={prefs.currency}
+            href="/app/benefits"
+          />
           <MetricCard metric={m.metric('verified_available')} currency={prefs.currency} />
-          <MetricCard metric={m.metric('pending_refunds')} currency={prefs.currency} href="/app/refunds" />
-          <MetricCard metric={m.metric('realised_total')} currency={prefs.currency} href="/app/analytics" />
+          <MetricCard
+            metric={m.metric('pending_refunds')}
+            currency={prefs.currency}
+            href="/app/refunds"
+          />
+          <MetricCard
+            metric={m.metric('realised_total')}
+            currency={prefs.currency}
+            href="/app/analytics"
+          />
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard metric={m.metric('expiring_soon')} currency={prefs.currency} href="/app/benefits?expiring=30" />
-          <MetricCard metric={m.metric('past_expiry')} currency={prefs.currency} href="/app/benefits?status=past_expiry" />
+          <MetricCard
+            metric={m.metric('expiring_soon')}
+            currency={prefs.currency}
+            href="/app/benefits?expiring=30"
+          />
+          <MetricCard
+            metric={m.metric('past_expiry')}
+            currency={prefs.currency}
+            href="/app/benefits?status=past_expiry"
+          />
           <StatTile
             label="Unresolved claims"
             value={m.unresolvedClaims}
@@ -174,7 +220,10 @@ export default async function DashboardPage() {
               description="Ranked by recorded deadlines, outstanding amounts and how long something has sat untouched."
               action={
                 attention.length ? (
-                  <Link href="/app/benefits?sort=expiry" className="text-sm text-[var(--accent)] hover:underline">
+                  <Link
+                    href="/app/benefits?sort=expiry"
+                    className="text-sm text-[var(--accent)] hover:underline"
+                  >
                     See all
                   </Link>
                 ) : null
@@ -208,7 +257,10 @@ export default async function DashboardPage() {
                       href={`/app/refunds/${a.record.id}`}
                       title={`Refund from ${a.record.merchant}`}
                       subtitle={a.record.orderRef ? `Order ${a.record.orderRef}` : 'Refund case'}
-                      amount={money(a.record.amountMinor - a.record.receivedAmountMinor, a.record.currency)}
+                      amount={money(
+                        a.record.amountMinor - a.record.receivedAmountMinor,
+                        a.record.currency,
+                      )}
                       priority={a.priority}
                     />
                   ),
@@ -232,7 +284,11 @@ export default async function DashboardPage() {
                 icon={<Wallet size={24} aria-hidden />}
                 title="No benefits yet"
                 description="Gift cards, credits, coupons and prepaid packs all live here."
-                action={<LinkButton href="/app/benefits/new" size="sm">Add a benefit</LinkButton>}
+                action={
+                  <LinkButton href="/app/benefits/new" size="sm">
+                    Add a benefit
+                  </LinkButton>
+                }
               />
             ) : (
               <ul className="divide-y divide-[var(--border)]">
@@ -258,7 +314,11 @@ export default async function DashboardPage() {
                 icon={<Inbox size={24} aria-hidden />}
                 title="No open refund cases"
                 description="When a merchant owes you money, track it here from the day you raise it."
-                action={<LinkButton href="/app/refunds/new" size="sm">Track a refund</LinkButton>}
+                action={
+                  <LinkButton href="/app/refunds/new" size="sm">
+                    Track a refund
+                  </LinkButton>
+                }
               />
             ) : (
               <ul className="divide-y divide-[var(--border)]">
@@ -272,7 +332,10 @@ export default async function DashboardPage() {
 
         <div className="space-y-5">
           <Card>
-            <CardHeader title="Upcoming deadlines" description="Recorded expiry dates in the next 90 days." />
+            <CardHeader
+              title="Upcoming deadlines"
+              description="Recorded expiry dates in the next 90 days."
+            />
             {deadlines.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-[var(--text-muted)]">
                 Nothing with a recorded expiry in the next 90 days.
@@ -289,9 +352,13 @@ export default async function DashboardPage() {
                       >
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">{b.title}</p>
-                          <p className="text-xs text-[var(--text-faint)]">{fmtDate(b.expiresAt, prefs)}</p>
+                          <p className="text-xs text-[var(--text-faint)]">
+                            {fmtDate(b.expiresAt, prefs)}
+                          </p>
                         </div>
-                        <Badge tone={days <= 7 ? 'danger' : days <= 30 ? 'warning' : 'neutral'}>{days}d</Badge>
+                        <Badge tone={days <= 7 ? 'danger' : days <= 30 ? 'warning' : 'neutral'}>
+                          {days}d
+                        </Badge>
                       </Link>
                     </li>
                   );
@@ -305,7 +372,10 @@ export default async function DashboardPage() {
               title="Reminders"
               description="Next 30 days."
               action={
-                <Link href="/app/reminders" className="text-sm text-[var(--accent)] hover:underline">
+                <Link
+                  href="/app/reminders"
+                  className="text-sm text-[var(--accent)] hover:underline"
+                >
                   Open
                 </Link>
               }
@@ -318,7 +388,11 @@ export default async function DashboardPage() {
               <ul className="divide-y divide-[var(--border)]">
                 {reminders.map((r) => (
                   <li key={r.id} className="flex items-start gap-2.5 px-4 py-2.5">
-                    <BellRing size={14} className="mt-0.5 shrink-0 text-[var(--text-faint)]" aria-hidden />
+                    <BellRing
+                      size={14}
+                      className="mt-0.5 shrink-0 text-[var(--text-faint)]"
+                      aria-hidden
+                    />
                     <div className="min-w-0">
                       <p className="truncate text-sm">{r.label}</p>
                       <p className="text-xs text-[var(--text-faint)]">{fmtDate(r.dueAt, prefs)}</p>
@@ -334,7 +408,10 @@ export default async function DashboardPage() {
               title="Recovery activity"
               description="Only outcomes you confirmed yourself."
               action={
-                <Link href="/app/analytics" className="text-sm text-[var(--accent)] hover:underline">
+                <Link
+                  href="/app/analytics"
+                  className="text-sm text-[var(--accent)] hover:underline"
+                >
                   Analytics
                 </Link>
               }
@@ -356,10 +433,14 @@ export default async function DashboardPage() {
                               ? 'Sessions recorded as used'
                               : 'Discount recorded as used'}
                       </p>
-                      <p className="text-xs text-[var(--text-faint)]">{fmtDate(a.occurredAt, prefs)}</p>
+                      <p className="text-xs text-[var(--text-faint)]">
+                        {fmtDate(a.occurredAt, prefs)}
+                      </p>
                     </div>
                     <span className="nums shrink-0 text-sm font-semibold text-[var(--accent)]">
-                      {a.amountMinor != null ? money(a.amountMinor, a.currency) : `${a.units ?? 0} used`}
+                      {a.amountMinor != null
+                        ? money(a.amountMinor, a.currency)
+                        : `${a.units ?? 0} used`}
                     </span>
                   </li>
                 ))}
@@ -370,10 +451,13 @@ export default async function DashboardPage() {
           <Card className="p-4">
             <p className="text-sm font-semibold">Keep the numbers honest</p>
             <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-[var(--text-muted)]">
-              Check a real balance with the provider now and then, and record it as a verified update. The
-              dashboard shows which records have never been checked.
+              Check a real balance with the provider now and then, and record it as a verified
+              update. The dashboard shows which records have never been checked.
             </p>
-            <Link href="/app/benefits?evidence=user_entered" className="mt-2.5 inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline">
+            <Link
+              href="/app/benefits?evidence=user_entered"
+              className="mt-2.5 inline-flex items-center gap-1 text-sm text-[var(--accent)] hover:underline"
+            >
               See unchecked records <ArrowRight size={14} aria-hidden />
             </Link>
           </Card>

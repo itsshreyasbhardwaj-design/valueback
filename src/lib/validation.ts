@@ -25,8 +25,12 @@ export const optionalDate = z
 const amountString = z
   .string()
   .trim()
-  .refine((v) => v === '' || /^-?\d{1,12}([.,]\d{1,2})?$/.test(v.replace(/[\s,]/g, (m) => (m === ',' ? ',' : ''))),
-    'Enter an amount like 2500 or 2500.00.');
+  .refine(
+    (v) =>
+      v === '' ||
+      /^-?\d{1,12}([.,]\d{1,2})?$/.test(v.replace(/[\s,]/g, (m) => (m === ',' ? ',' : ''))),
+    'Enter an amount like 2500 or 2500.00.',
+  );
 
 export const currencyField = z
   .string()
@@ -34,7 +38,12 @@ export const currencyField = z
   .toUpperCase()
   .refine((v) => SUPPORTED_CURRENCIES.includes(v), 'Choose a supported currency.');
 
-export const emailField = z.string().trim().toLowerCase().pipe(z.email('Enter a valid email address.')).refine((v) => v.length <= 254, 'That email is too long.');
+export const emailField = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(z.email('Enter a valid email address.'))
+  .refine((v) => v.length <= 254, 'That email is too long.');
 
 export const passwordField = z
   .string()
@@ -72,7 +81,11 @@ export const benefitSchema = z.object({
   originalValue: amountString.default(''),
   currentValue: amountString.default(''),
   unitLabel: z.string().trim().max(30).default(''),
-  units: z.string().trim().regex(/^\d{0,6}$/, 'Units must be a whole number.').default(''),
+  units: z
+    .string()
+    .trim()
+    .regex(/^\d{0,6}$/, 'Units must be a whole number.')
+    .default(''),
   issuedAt: optionalDate,
   receivedAt: optionalDate,
   expiresAt: optionalDate,
@@ -81,14 +94,22 @@ export const benefitSchema = z.object({
   tags: z.string().trim().max(200).default(''),
   code: z.string().trim().max(60).default(''),
   recurrence: z.enum(['none', 'monthly', 'quarterly', 'yearly']).default('none'),
-  recurrenceUnits: z.string().trim().regex(/^\d{0,4}$/, 'Use a whole number.').default(''),
+  recurrenceUnits: z
+    .string()
+    .trim()
+    .regex(/^\d{0,4}$/, 'Use a whole number.')
+    .default(''),
   recurrenceAnchor: optionalDate,
 });
 
 export const balanceEventSchema = z.object({
   type: z.enum(['usage', 'correction', 'verified_update', 'redeemed', 'revalidation']),
   amount: amountString.default(''),
-  units: z.string().trim().regex(/^\d{0,6}$/, 'Units must be a whole number.').default(''),
+  units: z
+    .string()
+    .trim()
+    .regex(/^\d{0,6}$/, 'Units must be a whole number.')
+    .default(''),
   reason: z.string().trim().max(500).default(''),
   occurredAt: z.string().trim().refine(isIsoDate, 'Use a valid date.'),
   newExpiresAt: optionalDate,
@@ -134,14 +155,19 @@ export const settingsSchema = z.object({
   reminderOffsets: z
     .string()
     .trim()
-    .regex(/^(\d{1,3})(\s*,\s*\d{1,3})*$/, 'Use day numbers separated by commas, for example 30, 14, 7.'),
+    .regex(
+      /^(\d{1,3})(\s*,\s*\d{1,3})*$/,
+      'Use day numbers separated by commas, for example 30, 14, 7.',
+    ),
   refundCheckInDays: z.coerce.number().int().min(1).max(90),
   notifyInApp: z.coerce.boolean().default(false),
   notifyBrowser: z.coerce.boolean().default(false),
   searchDocumentText: z.coerce.boolean().default(false),
 });
 
-export const householdSchema = z.object({ name: z.string().trim().min(1, 'Name this household.').max(80) });
+export const householdSchema = z.object({
+  name: z.string().trim().min(1, 'Name this household.').max(80),
+});
 export const inviteSchema = z.object({ role: z.enum(HOUSEHOLD_ROLES).exclude(['owner']) });
 export const shareSchema = z.object({
   householdId: z.string().trim().min(1),

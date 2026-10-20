@@ -74,9 +74,9 @@ export function InvitePanel({ householdId, baseUrl }: { householdId: string; bas
             {copied ? 'Copied' : 'Copy the link'}
           </Button>
           <p className="mt-2 text-xs">
-            Only a hash of this code is stored, so it cannot be recovered from the database. Send it the
-            way you would send any password — there is no email provider to send it for you. The person
-            needs a ValueBack account first.
+            Only a hash of this code is stored, so it cannot be recovered from the database. Send it
+            the way you would send any password — there is no email provider to send it for you. The
+            person needs a ValueBack account first.
           </p>
         </Alert>
       ) : null}
@@ -96,7 +96,14 @@ export function AcceptInvitePanel({ prefill }: { prefill?: string }) {
         error={state.errors?.token}
         hint="Paste the code, or the whole link — it is checked on the server."
       >
-        <Input id="token" name="token" defaultValue={prefill} required className="font-mono text-xs" autoComplete="off" />
+        <Input
+          id="token"
+          name="token"
+          defaultValue={prefill}
+          required
+          className="font-mono text-xs"
+          autoComplete="off"
+        />
       </Field>
       <SubmitButton size="sm" pendingLabel="Checking…">
         Join this household
@@ -117,7 +124,13 @@ export function RevokeInviteButton({ inviteId }: { inviteId: string }) {
   );
 }
 
-export function RemoveMemberButton({ householdId, memberUserId }: { householdId: string; memberUserId: string }) {
+export function RemoveMemberButton({
+  householdId,
+  memberUserId,
+}: {
+  householdId: string;
+  memberUserId: string;
+}) {
   const [state, action] = useActionState<FormState, FormData>(removeMemberAction, {});
   return (
     <form action={action}>
@@ -126,7 +139,9 @@ export function RemoveMemberButton({ householdId, memberUserId }: { householdId:
       <SubmitButton variant="ghost" size="sm" pendingLabel="…">
         Remove
       </SubmitButton>
-      {state.errors?._form ? <p className="text-xs text-[var(--danger)]">{state.errors._form}</p> : null}
+      {state.errors?._form ? (
+        <p className="text-xs text-[var(--danger)]">{state.errors._form}</p>
+      ) : null}
     </form>
   );
 }
@@ -158,8 +173,8 @@ export function DeleteHouseholdPanel({ householdId }: { householdId: string }) {
     <form action={action} className="space-y-3" noValidate>
       <input type="hidden" name="householdId" value={householdId} />
       <Alert tone="danger" title="Everyone loses access immediately">
-        Members are removed and every share inside this household is revoked. Your own records are not
-        deleted — only the sharing.
+        Members are removed and every share inside this household is revoked. Your own records are
+        not deleted — only the sharing.
       </Alert>
       <FormMessage state={state} />
       <Field label="Type delete to confirm" name="confirm" required error={state.errors?.confirm}>

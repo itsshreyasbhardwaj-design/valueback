@@ -57,17 +57,20 @@ export function roleIn(householdId: string, userId: string): HouseholdRole | nul
     db
       .select({ role: householdMembers.role })
       .from(householdMembers)
-      .where(and(eq(householdMembers.householdId, householdId), eq(householdMembers.userId, userId)))
+      .where(
+        and(eq(householdMembers.householdId, householdId), eq(householdMembers.userId, userId)),
+      )
       .get()?.role ?? null
   );
 }
 
 export function createHousehold(userId: string, name: string, plan: Plan) {
-  const owned = db
-    .select({ n: sql<number>`count(*)` })
-    .from(households)
-    .where(eq(households.ownerUserId, userId))
-    .get()?.n ?? 0;
+  const owned =
+    db
+      .select({ n: sql<number>`count(*)` })
+      .from(households)
+      .where(eq(households.ownerUserId, userId))
+      .get()?.n ?? 0;
   const limit = PLAN_LIMITS[plan].households;
   if (owned >= limit) {
     return {
@@ -77,31 +80,46 @@ export function createHousehold(userId: string, name: string, plan: Plan) {
   }
   const id = newId('h_');
   db.transaction((tx) => {
-    tx.insert(households).values({ id, name: name.trim().slice(0, 80), ownerUserId: userId }).run();
+    tx.insert(households)
+      .values({ id, name: name.trim().slice(0, 80), ownerUserId: userId })
+      .run();
     tx.insert(householdMembers)
       .values({ id: newId('hm_'), householdId: id, userId, role: 'owner' })
       .run();
   });
   audit(userId, 'household.create', 'household', id, {});
-  return { ok: true as const, household: db.select().from(households).where(eq(households.id, id)).get()! };
+  return {
+    ok: true as const,
+    household: db.select().from(households).where(eq(households.id, id)).get()!,
+  };
 }
 
 /**
  * Creates an invite and returns the raw token EXACTLY ONCE. Only its hash is
  * stored, so a database read cannot be replayed into household access.
  */
-export function createInvite(actorUserId: string, householdId: string, role: HouseholdRole, plan: Plan) {
+export function createInvite(
+  actorUserId: string,
+  householdId: string,
+  role: HouseholdRole,
+  plan: Plan,
+) {
   const actorRole = roleIn(householdId, actorUserId);
-  if (actorRole !== 'owner') return { ok: false as const, error: 'Only the household owner can invite people.' };
+  if (actorRole !== 'owner')
+    return { ok: false as const, error: 'Only the household owner can invite people.' };
   if (role === 'owner') return { ok: false as const, error: 'A household has a single owner.' };
 
-  const count = db
-    .select({ n: sql<number>`count(*)` })
-    .from(householdMembers)
-    .where(eq(householdMembers.householdId, householdId))
-    .get()?.n ?? 0;
+  const count =
+    db
+      .select({ n: sql<number>`count(*)` })
+      .from(householdMembers)
+      .where(eq(householdMembers.householdId, householdId))
+      .get()?.n ?? 0;
   if (count >= MAX_MEMBERS[plan]) {
-    return { ok: false as const, error: `This household already has the maximum of ${MAX_MEMBERS[plan]} members.` };
+    return {
+      ok: false as const,
+      error: `This household already has the maximum of ${MAX_MEMBERS[plan]} members.`,
+    };
   }
 
   const token = newToken(24);
@@ -124,7 +142,13 @@ export function invitesFor(householdId: string) {
   return db
     .select()
     .from(householdInvites)
-    .where(and(eq(householdInvites.householdId, householdId), isNull(householdInvites.acceptedAt), isNull(householdInvites.revokedAt)))
+    .where(
+      and(
+        eq(householdInvites.householdId, householdId),
+        isNull(householdInvites.acceptedAt),
+        isNull(householdInvites.revokedAt),
+      ),
+    )
     .all();
 }
 
@@ -134,14 +158,19 @@ export function revokeInvite(actorUserId: string, inviteId: string) {
   if (roleIn(invite.householdId, actorUserId) !== 'owner') {
     return { ok: false as const, error: 'Only the household owner can revoke invitations.' };
   }
-  db.update(householdInvites).set({ revokedAt: nowIso() }).where(eq(householdInvites.id, inviteId)).run();
+  db.update(householdInvites)
+    .set({ revokedAt: nowIso() })
+    .where(eq(householdInvites.id, inviteId))
+    .run();
   audit(actorUserId, 'household.invite.revoke', 'household', invite.householdId, {});
   return { ok: true as const };
 }
 
 export type InvitePreview = { householdName: string; role: HouseholdRole; expiresAt: string };
 
-export function previewInvite(token: string): { ok: true; preview: InvitePreview } | { ok: false; error: string } {
+export function previewInvite(
+  token: string,
+): { ok: true; preview: InvitePreview } | { ok: false; error: string } {
   const row = db
     .select({ invite: householdInvites, household: households })
     .from(householdInvites)
@@ -153,14 +182,19 @@ export function previewInvite(token: string): { ok: true; preview: InvitePreview
   if (bad) return { ok: false, error: bad };
   return {
     ok: true,
-    preview: { householdName: row.household.name, role: row.invite.role, expiresAt: row.invite.expiresAt },
+    preview: {
+      householdName: row.household.name,
+      role: row.invite.role,
+      expiresAt: row.invite.expiresAt,
+    },
   };
 }
 
 function inviteProblem(invite: typeof householdInvites.$inferSelect): string | null {
   if (invite.revokedAt) return 'That invitation has been revoked.';
   if (invite.acceptedAt) return 'That invitation has already been used.';
-  if (Date.parse(invite.expiresAt) <= Date.now()) return 'That invitation has expired. Ask for a new one.';
+  if (Date.parse(invite.expiresAt) <= Date.now())
+    return 'That invitation has expired. Ask for a new one.';
   return null;
 }
 
@@ -198,12 +232,20 @@ export function leaveHousehold(userId: string, householdId: string) {
   }
   db.transaction((tx) => {
     tx.delete(householdMembers)
-      .where(and(eq(householdMembers.householdId, householdId), eq(householdMembers.userId, userId)))
+      .where(
+        and(eq(householdMembers.householdId, householdId), eq(householdMembers.userId, userId)),
+      )
       .run();
     // Anything this person shared into the household stops being shared.
     tx.update(accessGrants)
       .set({ revokedAt: nowIso() })
-      .where(and(eq(accessGrants.householdId, householdId), eq(accessGrants.ownerUserId, userId), isNull(accessGrants.revokedAt)))
+      .where(
+        and(
+          eq(accessGrants.householdId, householdId),
+          eq(accessGrants.ownerUserId, userId),
+          isNull(accessGrants.revokedAt),
+        ),
+      )
       .run();
   });
   audit(userId, 'household.leave', 'household', householdId, {});
@@ -214,14 +256,26 @@ export function removeMember(actorUserId: string, householdId: string, memberUse
   if (roleIn(householdId, actorUserId) !== 'owner') {
     return { ok: false as const, error: 'Only the household owner can remove members.' };
   }
-  if (memberUserId === actorUserId) return { ok: false as const, error: 'The owner cannot be removed.' };
+  if (memberUserId === actorUserId)
+    return { ok: false as const, error: 'The owner cannot be removed.' };
   db.transaction((tx) => {
     tx.delete(householdMembers)
-      .where(and(eq(householdMembers.householdId, householdId), eq(householdMembers.userId, memberUserId)))
+      .where(
+        and(
+          eq(householdMembers.householdId, householdId),
+          eq(householdMembers.userId, memberUserId),
+        ),
+      )
       .run();
     tx.update(accessGrants)
       .set({ revokedAt: nowIso() })
-      .where(and(eq(accessGrants.householdId, householdId), eq(accessGrants.ownerUserId, memberUserId), isNull(accessGrants.revokedAt)))
+      .where(
+        and(
+          eq(accessGrants.householdId, householdId),
+          eq(accessGrants.ownerUserId, memberUserId),
+          isNull(accessGrants.revokedAt),
+        ),
+      )
       .run();
   });
   audit(actorUserId, 'household.remove_member', 'household', householdId, {});
@@ -231,7 +285,8 @@ export function removeMember(actorUserId: string, householdId: string, memberUse
 export function deleteHousehold(actorUserId: string, householdId: string) {
   const h = db.select().from(households).where(eq(households.id, householdId)).get();
   if (!h) return { ok: false as const, error: 'Household not found.' };
-  if (h.ownerUserId !== actorUserId) return { ok: false as const, error: 'Only the owner can delete a household.' };
+  if (h.ownerUserId !== actorUserId)
+    return { ok: false as const, error: 'Only the owner can delete a household.' };
   db.delete(households).where(eq(households.id, householdId)).run(); // cascades members, invites, grants
   audit(actorUserId, 'household.delete', 'household', householdId, {});
   return { ok: true as const };
@@ -255,8 +310,16 @@ export function shareRecord(
   }
   const owned =
     resourceType === 'benefit'
-      ? db.select({ id: benefits.id }).from(benefits).where(and(eq(benefits.id, resourceId), eq(benefits.userId, ownerUserId))).get()
-      : db.select({ id: refundCases.id }).from(refundCases).where(and(eq(refundCases.id, resourceId), eq(refundCases.userId, ownerUserId))).get();
+      ? db
+          .select({ id: benefits.id })
+          .from(benefits)
+          .where(and(eq(benefits.id, resourceId), eq(benefits.userId, ownerUserId)))
+          .get()
+      : db
+          .select({ id: refundCases.id })
+          .from(refundCases)
+          .where(and(eq(refundCases.id, resourceId), eq(refundCases.userId, ownerUserId)))
+          .get();
   if (!owned) return { ok: false as const, error: 'Only the owner of a record can share it.' };
 
   db.insert(accessGrants)
@@ -295,7 +358,8 @@ export function revokeShare(
       ),
     )
     .get();
-  if (!grant) return { ok: false as const, error: 'That record is not shared with this household.' };
+  if (!grant)
+    return { ok: false as const, error: 'That record is not shared with this household.' };
   if (grant.ownerUserId !== ownerUserId) {
     return { ok: false as const, error: 'Only the owner of a record can stop sharing it.' };
   }
@@ -337,7 +401,10 @@ export function sharedWithMe(userId: string) {
       and(
         isNull(accessGrants.revokedAt),
         ne(accessGrants.ownerUserId, userId),
-        sql`${accessGrants.householdId} IN (${sql.join(mine.map((h) => sql`${h}`), sql`, `)})`,
+        sql`${accessGrants.householdId} IN (${sql.join(
+          mine.map((h) => sql`${h}`),
+          sql`, `,
+        )})`,
       ),
     )
     .all();

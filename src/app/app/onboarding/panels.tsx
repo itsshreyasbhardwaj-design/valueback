@@ -64,14 +64,33 @@ export function InterestsForm({ selected }: { selected: string[] }) {
   );
 }
 
-export function QuickAddForm({ currency, suggestedCategory }: { currency: string; suggestedCategory: string }) {
+export function QuickAddForm({
+  currency,
+  suggestedCategory,
+}: {
+  currency: string;
+  suggestedCategory: string;
+}) {
   const [state, action] = useActionState<FormState, FormData>(quickAddBenefitAction, {});
   return (
     <form action={action} className="space-y-4" noValidate>
       <FormMessage state={state} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="What is it?" name="title" required error={state.errors?.title} className="sm:col-span-2">
-          <Input id="title" name="title" maxLength={120} required placeholder="Gift card from Diwali" autoFocus />
+        <Field
+          label="What is it?"
+          name="title"
+          required
+          error={state.errors?.title}
+          className="sm:col-span-2"
+        >
+          <Input
+            id="title"
+            name="title"
+            maxLength={120}
+            required
+            placeholder="Gift card from Diwali"
+            autoFocus
+          />
         </Field>
         <Field label="Category" name="category">
           <Select id="category" name="category" defaultValue={suggestedCategory}>
@@ -83,7 +102,12 @@ export function QuickAddForm({ currency, suggestedCategory }: { currency: string
           </Select>
         </Field>
         <Field label="Merchant" name="merchant">
-          <Input id="merchant" name="merchant" maxLength={80} placeholder="Where you can spend it" />
+          <Input
+            id="merchant"
+            name="merchant"
+            maxLength={80}
+            placeholder="Where you can spend it"
+          />
         </Field>
         <Field label="Currency" name="currency">
           <Select id="currency" name="currency" defaultValue={currency}>
@@ -94,10 +118,27 @@ export function QuickAddForm({ currency, suggestedCategory }: { currency: string
             ))}
           </Select>
         </Field>
-        <Field label="Value" name="originalValue" error={state.errors?.originalValue} hint="Leave blank if it does not have one.">
-          <Input id="originalValue" name="originalValue" inputMode="decimal" className="nums" placeholder="2500.00" />
+        <Field
+          label="Value"
+          name="originalValue"
+          error={state.errors?.originalValue}
+          hint="Leave blank if it does not have one."
+        >
+          <Input
+            id="originalValue"
+            name="originalValue"
+            inputMode="decimal"
+            className="nums"
+            placeholder="2500.00"
+          />
         </Field>
-        <Field label="Expires on" name="expiresAt" error={state.errors?.expiresAt} hint="This is what reminders are built from." className="sm:col-span-2">
+        <Field
+          label="Expires on"
+          name="expiresAt"
+          error={state.errors?.expiresAt}
+          hint="This is what reminders are built from."
+          className="sm:col-span-2"
+        >
           <Input id="expiresAt" name="expiresAt" type="date" />
         </Field>
       </div>

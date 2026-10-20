@@ -27,8 +27,8 @@ export default async function NewRefundPage() {
         description="Open a case the day you ask for the money back. ValueBack watches the window and nudges you if it passes."
       />
       <Alert tone="neutral" className="mb-5">
-        The case starts at “return or cancellation requested”. Nothing is counted as money you got back
-        until you confirm it arrived.
+        The case starts at “return or cancellation requested”. Nothing is counted as money you got
+        back until you confirm it arrived.
       </Alert>
       <RefundForm action={createRefundAction} initial={initial} mode="create" />
     </>

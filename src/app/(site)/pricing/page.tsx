@@ -5,7 +5,8 @@ import { Alert, Card, LinkButton } from '@/components/ui';
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: 'Provisional ValueBack plans. No payment system exists in this build — every account is on the free plan.',
+  description:
+    'Provisional ValueBack plans. No payment system exists in this build — every account is on the free plan.',
 };
 
 const PLANS = [
@@ -67,9 +68,9 @@ export default function PricingPage() {
       </p>
 
       <Alert tone="info" title="There is no checkout in this build" className="mt-6 max-w-3xl">
-        No payment provider is connected, nothing can be bought, and no account has ever been charged.
-        Every account runs on the Free plan. The plan limits below are real and enforced in code — they
-        are simply all set to Free until billing exists.
+        No payment provider is connected, nothing can be bought, and no account has ever been
+        charged. Every account runs on the Free plan. The plan limits below are real and enforced in
+        code — they are simply all set to Free until billing exists.
       </Alert>
 
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -127,17 +128,19 @@ export default function PricingPage() {
         <Card className="p-5">
           <h2 className="text-lg font-semibold">What happens when billing is added</h2>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            Plan entitlements already exist as a real part of the data model: each account has a plan,
-            and limits are checked on the server before a record is created. Adding a payment provider
-            means writing the plan on a successful payment — no feature flags need inventing.
+            Plan entitlements already exist as a real part of the data model: each account has a
+            plan, and limits are checked on the server before a record is created. Adding a payment
+            provider means writing the plan on a successful payment — no feature flags need
+            inventing.
           </p>
         </Card>
         <Card className="p-5">
           <h2 className="text-lg font-semibold">Note on household sharing</h2>
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            Household sharing is listed under Family. Because no plan can be purchased, the Free plan
-            includes one household space so the feature is genuinely usable rather than a locked button.
-            This is a deliberate choice for the current build and is recorded in the project documentation.
+            Household sharing is listed under Family. Because no plan can be purchased, the Free
+            plan includes one household space so the feature is genuinely usable rather than a
+            locked button. This is a deliberate choice for the current build and is recorded in the
+            project documentation.
           </p>
         </Card>
       </div>

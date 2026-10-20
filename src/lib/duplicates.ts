@@ -37,12 +37,18 @@ export function findBenefitDuplicates(
   const where = [eq(benefits.userId, userId)];
   if (candidate.id) where.push(ne(benefits.id, candidate.id));
 
-  const rows = db.select().from(benefits).where(and(...where)).limit(500).all();
+  const rows = db
+    .select()
+    .from(benefits)
+    .where(and(...where))
+    .limit(500)
+    .all();
   const hits: Array<DuplicateHit<typeof benefits.$inferSelect>> = [];
 
   for (const r of rows) {
     const signals: string[] = [];
-    const sameMerchant = Boolean(candidate.merchant) && norm(r.merchant) === norm(candidate.merchant);
+    const sameMerchant =
+      Boolean(candidate.merchant) && norm(r.merchant) === norm(candidate.merchant);
     const sameTitle = norm(r.title) === norm(candidate.title);
     const sameValue =
       candidate.originalValueMinor != null &&
@@ -64,14 +70,21 @@ export function findBenefitDuplicates(
       (sameCode && sameMerchant) ||
       (sameMerchant && sameValue && (sameExpiry || sameIssue)) ||
       (sameMerchant && sameTitle && sameValue);
-    const possible = (sameMerchant && (sameValue || sameTitle || sameExpiry)) || (sameTitle && sameValue);
+    const possible =
+      (sameMerchant && (sameValue || sameTitle || sameExpiry)) || (sameTitle && sameValue);
 
     if (strong) hits.push({ record: r, strength: 'strong', signals });
     else if (possible) hits.push({ record: r, strength: 'possible', signals });
   }
 
   return hits
-    .sort((a, b) => (a.strength === b.strength ? b.signals.length - a.signals.length : a.strength === 'strong' ? -1 : 1))
+    .sort((a, b) =>
+      a.strength === b.strength
+        ? b.signals.length - a.signals.length
+        : a.strength === 'strong'
+          ? -1
+          : 1,
+    )
     .slice(0, limit);
 }
 
@@ -90,7 +103,12 @@ export function findRefundDuplicates(
 ): Array<DuplicateHit<typeof refundCases.$inferSelect>> {
   const where = [eq(refundCases.userId, userId)];
   if (candidate.id) where.push(ne(refundCases.id, candidate.id));
-  const rows = db.select().from(refundCases).where(and(...where)).limit(500).all();
+  const rows = db
+    .select()
+    .from(refundCases)
+    .where(and(...where))
+    .limit(500)
+    .all();
   const hits: Array<DuplicateHit<typeof refundCases.$inferSelect>> = [];
 
   for (const r of rows) {
@@ -98,7 +116,8 @@ export function findRefundDuplicates(
     const sameMerchant = norm(r.merchant) === norm(candidate.merchant);
     const sameOrder = Boolean(candidate.orderRef) && norm(r.orderRef) === norm(candidate.orderRef);
     const sameRef =
-      Boolean(candidate.referenceNumber) && norm(r.referenceNumber) === norm(candidate.referenceNumber ?? '');
+      Boolean(candidate.referenceNumber) &&
+      norm(r.referenceNumber) === norm(candidate.referenceNumber ?? '');
     const sameAmount = r.amountMinor === candidate.amountMinor && r.currency === candidate.currency;
     const closeDate =
       Boolean(candidate.purchaseDate && r.purchaseDate) &&
@@ -116,7 +135,13 @@ export function findRefundDuplicates(
     else if (possible) hits.push({ record: r, strength: 'possible', signals });
   }
   return hits
-    .sort((a, b) => (a.strength === b.strength ? b.signals.length - a.signals.length : a.strength === 'strong' ? -1 : 1))
+    .sort((a, b) =>
+      a.strength === b.strength
+        ? b.signals.length - a.signals.length
+        : a.strength === 'strong'
+          ? -1
+          : 1,
+    )
     .slice(0, limit);
 }
 
@@ -124,7 +149,13 @@ export function findRefundDuplicates(
 export function findDocumentByHash(userId: string, sha256: string, excludeId?: string) {
   const where = [eq(documents.userId, userId), eq(documents.sha256, sha256)];
   if (excludeId) where.push(ne(documents.id, excludeId));
-  return db.select().from(documents).where(and(...where)).get() ?? null;
+  return (
+    db
+      .select()
+      .from(documents)
+      .where(and(...where))
+      .get() ?? null
+  );
 }
 
 /** Account-wide sweep used by the Duplicates review screen. */
@@ -137,7 +168,12 @@ export function scanBenefitDuplicates(userId: string, limit = 20) {
     .all();
 
   const seen = new Set<string>();
-  const groups: Array<{ a: typeof benefits.$inferSelect; b: typeof benefits.$inferSelect; strength: 'strong' | 'possible'; signals: string[] }> = [];
+  const groups: Array<{
+    a: typeof benefits.$inferSelect;
+    b: typeof benefits.$inferSelect;
+    strength: 'strong' | 'possible';
+    signals: string[];
+  }> = [];
   for (const r of rows) {
     for (const hit of findBenefitDuplicates(userId, r, 3)) {
       const key = [r.id, hit.record.id].sort().join('|');

@@ -19,7 +19,12 @@ import { fieldErrors, formObject, reminderSchema, type FormState } from '@/lib/v
 export async function snoozeReminderAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUserForAction();
   const days = Number(fd.get('days') ?? 7);
-  snoozeReminder(user.id, String(fd.get('id') ?? ''), Number.isFinite(days) ? days : 7, todayIso(user.settings.timeZone));
+  snoozeReminder(
+    user.id,
+    String(fd.get('id') ?? ''),
+    Number.isFinite(days) ? days : 7,
+    todayIso(user.settings.timeZone),
+  );
   revalidatePath('/app/reminders');
   return { ok: true, message: `Snoozed for ${days} days.` };
 }
@@ -63,7 +68,10 @@ export async function createReminderAction(_prev: FormState, fd: FormData): Prom
   return { ok: true, message: 'Reminder scheduled.' };
 }
 
-export async function markNotificationReadAction(_prev: FormState, fd: FormData): Promise<FormState> {
+export async function markNotificationReadAction(
+  _prev: FormState,
+  fd: FormData,
+): Promise<FormState> {
   const user = await requireUserForAction();
   const id = String(fd.get('id') ?? '');
   db.update(notifications)
@@ -87,8 +95,8 @@ export async function markAllReadAction(): Promise<void> {
 
 /** Runs the scheduler on demand so a user can see exactly what is due now. */
 export async function runSchedulerAction(_prev: FormState, _fd: FormData): Promise<FormState> {
-  await requireUserForAction();
-  const result = runDueReminders();
+  const user = await requireUserForAction();
+  const result = runDueReminders(todayIso(user.settings.timeZone), user.id);
   revalidatePath('/app/reminders');
   revalidatePath('/app');
   return {

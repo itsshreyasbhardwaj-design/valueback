@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { BellRing, Check, Clock, X } from 'lucide-react';
 import { FormMessage, SubmitButton } from '@/components/form';
 import { Alert, Button, Field, Input, Select } from '@/components/ui';
@@ -40,7 +40,13 @@ export function ReminderActions({ reminderId, dueAt }: { reminderId: string; due
       {showDate ? (
         <form action={reschedule} className="flex items-end gap-1.5">
           <input type="hidden" name="id" value={reminderId} />
-          <input type="date" name="dueAt" defaultValue={dueAt} className="vb-input h-8 w-36 py-0 text-xs" aria-label="New date" />
+          <input
+            type="date"
+            name="dueAt"
+            defaultValue={dueAt}
+            className="vb-input h-8 w-36 py-0 text-xs"
+            aria-label="New date"
+          />
           <SubmitButton variant="secondary" size="sm" pendingLabel="…">
             Move
           </SubmitButton>
@@ -95,7 +101,13 @@ export function NewReminderPanel({ today }: { today: string }) {
       <input type="hidden" name="kind" value="custom" />
       <FormMessage state={state} />
       <Field label="Remind me to" name="label" required error={state.errors?.label}>
-        <Input id="label" name="label" maxLength={120} required placeholder="Ask the gym about the unused sessions" />
+        <Input
+          id="label"
+          name="label"
+          maxLength={120}
+          required
+          placeholder="Ask the gym about the unused sessions"
+        />
       </Field>
       <Field label="On" name="dueAt" required error={state.errors?.dueAt}>
         <Input id="dueAt" name="dueAt" type="date" min={today} defaultValue={today} required />
@@ -110,22 +122,42 @@ export function NewReminderPanel({ today }: { today: string }) {
 /**
  * Browser notifications only work while this tab is open and only after the
  * person grants permission. We say so rather than implying push delivery.
+ *
+ * Permission is read through useSyncExternalStore so the server render and the
+ * first client render agree, and so a grant updates the UI without an effect.
  */
-export function BrowserNotifications({ enabled, pending }: { enabled: boolean; pending: Array<{ title: string; body: string }> }) {
-  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
-  const [sent, setSent] = useState(false);
+const notificationStore = {
+  subscribe(onChange: () => void) {
+    window.addEventListener('vb:notification-permission', onChange);
+    return () => window.removeEventListener('vb:notification-permission', onChange);
+  },
+  getSnapshot(): NotificationPermission | 'unsupported' {
+    return typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'unsupported';
+  },
+  getServerSnapshot(): NotificationPermission | 'unsupported' | 'unknown' {
+    return 'unknown';
+  },
+};
+
+export function BrowserNotifications({
+  enabled,
+  pending,
+}: {
+  enabled: boolean;
+  pending: Array<{ title: string; body: string }>;
+}) {
+  const permission = useSyncExternalStore(
+    notificationStore.subscribe,
+    notificationStore.getSnapshot,
+    notificationStore.getServerSnapshot,
+  );
+  const shown = useRef(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
-      setPermission('unsupported');
-      return;
-    }
-    setPermission(Notification.permission);
-  }, []);
-
-  useEffect(() => {
-    if (!enabled || sent || permission !== 'granted' || pending.length === 0) return;
-    setSent(true);
+    if (!enabled || shown.current || permission !== 'granted' || pending.length === 0) return;
+    shown.current = true;
     for (const n of pending.slice(0, 3)) {
       try {
         new Notification(n.title, { body: n.body, tag: n.title });
@@ -133,25 +165,25 @@ export function BrowserNotifications({ enabled, pending }: { enabled: boolean; p
         // Some browsers refuse constructor notifications; nothing to recover.
       }
     }
-  }, [enabled, permission, pending, sent]);
+  }, [enabled, permission, pending]);
 
-  if (!enabled) return null;
+  if (!enabled || permission === 'unknown') return null;
   if (permission === 'unsupported') {
     return <Alert tone="neutral">This browser does not support notifications.</Alert>;
   }
   if (permission === 'granted') {
     return (
       <Alert tone="positive">
-        Browser notifications are on for this browser. They appear while a ValueBack tab is open — nothing
-        is delivered once the app is closed.
+        Browser notifications are on for this browser. They appear while a ValueBack tab is open —
+        nothing is delivered once the app is closed.
       </Alert>
     );
   }
   if (permission === 'denied') {
     return (
       <Alert tone="warning">
-        This browser has blocked notifications for ValueBack. Change it in your browser’s site settings if
-        you want them.
+        This browser has blocked notifications for ValueBack. Change it in your browser&rsquo;s site
+        settings if you want them.
       </Alert>
     );
   }
@@ -162,7 +194,11 @@ export function BrowserNotifications({ enabled, pending }: { enabled: boolean; p
         size="sm"
         variant="secondary"
         className="mt-2"
-        onClick={() => void Notification.requestPermission().then(setPermission)}
+        onClick={() => {
+          void Notification.requestPermission().then(() =>
+            window.dispatchEvent(new Event('vb:notification-permission')),
+          );
+        }}
       >
         Allow notifications in this browser
       </Button>
