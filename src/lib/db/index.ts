@@ -3,10 +3,9 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import * as schema from './schema';
+import { readEnv } from '../env';
 
-export const DB_PATH = resolve(
-  /* turbopackIgnore: true */ process.env.DATABASE_URL ?? './data/valueback.db',
-);
+export const DB_PATH = resolve(readEnv('DATABASE_URL') ?? './data/valueback.db');
 
 function connect() {
   mkdirSync(dirname(DB_PATH), { recursive: true });
@@ -21,9 +20,12 @@ function connect() {
 }
 
 // Next.js dev server re-evaluates modules on hot reload; one connection per process.
+// One connection per server bundle. A production build can load this module
+// more than once; WAL plus busy_timeout makes concurrent connections to the
+// same file safe.
 const g = globalThis as unknown as { __vbDb?: ReturnType<typeof connect> };
 export const db = g.__vbDb ?? connect();
-if (process.env.NODE_ENV !== 'production') g.__vbDb = db;
+g.__vbDb = db;
 
 export { schema };
 export type Db = typeof db;

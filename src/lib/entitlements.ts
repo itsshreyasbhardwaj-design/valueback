@@ -3,6 +3,7 @@ import { and, eq, isNull, count } from 'drizzle-orm';
 import { db } from './db';
 import { benefits, entitlements, type Plan } from './db/schema';
 import { nowIso } from './dates';
+import { readEnv } from './env';
 
 /**
  * Plan limits. No payment provider is connected: every account is on `free`
@@ -25,7 +26,7 @@ export const PLAN_LIMITS = {
 
 /** Dev-only plan switching, so the entitlement system is testable without payments. */
 export function devOverrideEnabled(): boolean {
-  return process.env.NODE_ENV !== 'production' && process.env.VALUEBACK_DEV_PLAN_OVERRIDE === '1';
+  return readEnv('NODE_ENV') !== 'production' && readEnv('VALUEBACK_DEV_PLAN_OVERRIDE') === '1';
 }
 
 export function setPlan(userId: string, plan: Plan): void {

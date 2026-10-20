@@ -1,6 +1,7 @@
 import 'server-only';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { readEnv } from './env';
 
 /**
  * Local OCR via tesseract.js (WASM). Runs entirely on this machine.
@@ -10,9 +11,7 @@ import { resolve } from 'node:path';
  * `npm run fetch:ocr`. Until then image OCR reports itself as unavailable and
  * the upload falls back to manual entry — it never pretends to have read text.
  */
-export const OCR_DATA_DIR = resolve(
-  /* turbopackIgnore: true */ process.env.OCR_DATA_DIR ?? './ocr-data',
-);
+export const OCR_DATA_DIR = resolve(readEnv('OCR_DATA_DIR') ?? './ocr-data');
 const LANG = 'eng';
 
 export function ocrAvailable(): boolean {

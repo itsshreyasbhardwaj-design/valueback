@@ -1,3 +1,4 @@
+import { readEnv } from './env';
 import {
   createCipheriv,
   createDecipheriv,
@@ -74,7 +75,7 @@ export function normaliseRecoveryCode(code: string): string {
 /* ----------------------------------------------- authenticated encryption */
 
 function key(): Buffer {
-  const raw = process.env.APP_ENCRYPTION_KEY;
+  const raw = readEnv('APP_ENCRYPTION_KEY');
   if (!raw) {
     throw new Error(
       'APP_ENCRYPTION_KEY is not set. Run `npm run setup` to generate local secrets.',

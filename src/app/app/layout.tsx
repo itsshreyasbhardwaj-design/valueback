@@ -61,6 +61,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </Link>
           </div>
         </div>
+        {user.email.endsWith('@valueback.local') ? (
+          <p
+            role="status"
+            className="border-b border-[var(--warn)]/40 bg-[var(--warn-soft)] px-4 py-2 text-center text-[0.8125rem] text-[var(--warn)] sm:px-6"
+          >
+            Demo account — every record here is fictional, created by{' '}
+            <code className="font-mono">npm run seed:demo</code>. Nothing in it is real.
+          </p>
+        ) : null}
         <main id="main" className="flex-1 px-4 py-5 sm:px-6 sm:py-6">
           <div className="mx-auto max-w-6xl">{children}</div>
         </main>

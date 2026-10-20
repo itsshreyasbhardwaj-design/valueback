@@ -11,6 +11,7 @@ import { analyseText, type ExtractionResult } from './extraction';
 import { looksLikeEml, parseEml } from './eml';
 import { ocrAvailable, ocrImage, OCR_UNAVAILABLE_MESSAGE } from './ocr';
 import { audit } from './audit';
+import { readEnv } from './env';
 
 export const UPLOAD_MAX_BYTES = 8 * 1024 * 1024; // 8 MB
 export const UPLOAD_MAX_LABEL = '8 MB';
@@ -31,7 +32,7 @@ export type Document = typeof documents.$inferSelect;
 export type Extraction = typeof extractions.$inferSelect;
 
 export function storageDir(): string {
-  return resolve(/* turbopackIgnore: true */ process.env.STORAGE_DIR ?? './storage');
+  return resolve(readEnv('STORAGE_DIR') ?? './storage');
 }
 
 type Sniffed = { kind: 'image' | 'pdf' | 'text' | 'eml'; mime: string; ext: string };

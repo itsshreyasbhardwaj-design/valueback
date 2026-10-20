@@ -1,11 +1,13 @@
 import 'server-only';
 import { eq } from 'drizzle-orm';
 import { cookies, headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { db } from './db';
 import { entitlements, sessions, userSettings, users } from './db/schema';
 import { newToken, sha256 } from './crypto';
 import { getOrCreateSettings } from './accounts';
+import { readEnv } from './env';
 
 export {
   changePassword,
@@ -20,7 +22,7 @@ export {
 export const SESSION_COOKIE = 'vb_session';
 
 function ttlMs(): number {
-  const hours = Number(process.env.SESSION_TTL_HOURS ?? 720);
+  const hours = Number(readEnv('SESSION_TTL_HOURS') ?? 720);
   return (Number.isFinite(hours) && hours > 0 ? hours : 720) * 3_600_000;
 }
 
@@ -34,10 +36,26 @@ export type SessionUser = {
 
 /* --------------------------------------------------------------- sessions */
 
+/**
+ * `Secure` is correct for any real deployment, but a local production build is
+ * served over http://localhost — marking the cookie Secure there would be a
+ * footgun for the documented `npm run build && npm start` flow. Loopback hosts
+ * are the only exception.
+ */
+function isLoopback(host: string | null): boolean {
+  if (!host) return false;
+  const name = host.split(':')[0]!.toLowerCase();
+  return name === 'localhost' || name === '127.0.0.1' || name === '[::1]' || name === '::1';
+}
+
 export async function createSession(userId: string): Promise<void> {
   const token = newToken(32);
   const expires = new Date(Date.now() + ttlMs());
-  const ua = (await headers()).get('user-agent')?.slice(0, 200) ?? '';
+  const h = await headers();
+  const ua = h.get('user-agent')?.slice(0, 200) ?? '';
+  const proto = h.get('x-forwarded-proto');
+  const host = h.get('x-forwarded-host') ?? h.get('host');
+  const secure = proto ? proto === 'https' : !isLoopback(host);
   db.insert(sessions)
     .values({
       id: sha256(token), // only the hash is persisted
@@ -50,7 +68,7 @@ export async function createSession(userId: string): Promise<void> {
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure,
     path: '/',
     expires,
   });
@@ -103,9 +121,15 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   };
 });
 
+/**
+ * Pages and layouts render in parallel, so a page cannot rely on its layout
+ * having redirected first. Redirecting here (rather than throwing) keeps an
+ * unauthenticated hit on any /app route a clean 307 to the sign-in page
+ * instead of a server error.
+ */
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
-  if (!user) throw new AuthError('Not signed in');
+  if (!user) redirect('/signin');
   return user;
 }
 
