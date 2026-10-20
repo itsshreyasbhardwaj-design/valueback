@@ -2,6 +2,12 @@
   "name": "valueback",
   "version": "0.2.0",
   "private": true,
+  "license": "MIT",
+  "author": "Shreyas Bhardwaj",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itsshreyasbhardwaj-design/valueback.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=20.11"

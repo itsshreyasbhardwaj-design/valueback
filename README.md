@@ -176,4 +176,8 @@ reasonable target. Anything beyond that needs the Phase 3 work in
 
 ## Licence
 
-No licence has been chosen yet. Until one is added, default copyright applies.
+[MIT](LICENSE). Use it, change it, ship it — just keep the copyright notice.
+
+The warranty disclaimer is not boilerplate here: this build has had no
+independent security assessment, and the privacy policy and terms it ships with
+are drafts needing review. See [SECURITY.md](SECURITY.md).
